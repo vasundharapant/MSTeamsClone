@@ -1,0 +1,11 @@
+body{
+    text-align: center;
+    align-items: center;
+}
+.form-control{
+    width: auto;
+}
+input{       
+    margin-left: auto;
+    margin-right: auto;
+}
