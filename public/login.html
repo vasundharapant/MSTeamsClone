@@ -80,11 +80,11 @@
     const loginbtn=document.getElementById('loginbtn');
     const signupbtn=document.getElementById('signupbtn');
     const auth=firebase.auth();
-
+    var emailID,Password;
     loginbtn.addEventListener('click',event=>{
         event.preventDefault();
-        const emailID=email.value;
-        const Password=password.value;
+        emailID=email.value;
+        Password=password.value;
         console.log('login');
         const promise=auth.signInWithEmailAndPassword(emailID,Password)
         .catch(e=>{
@@ -95,8 +95,8 @@
     });
     signupbtn.addEventListener('click',event=>{
         event.preventDefault();
-        const emailID=email.value;
-        const Password=password.value;
+        emailID=email.value;
+        Password=password.value;
         console.log('signing in');
         const promise=auth.createUserWithEmailAndPassword(emailID,Password).then(e=>{console.log(e.message)})
         .catch(e=>{
@@ -109,7 +109,9 @@
     auth.onAuthStateChanged(firebaseUser=>{
         if(firebaseUser){
             console.log("logged in"); 
-            //console.log(firebaseUser);             
+            //console.log(firebaseUser);
+            let userInfo=[emailID,Password];
+            sessionStorage.setItem('userInfo',JSON.stringify(userInfo));             
             window.location.href="./index.html";                            
         }
         else{

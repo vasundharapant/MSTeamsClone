@@ -175,7 +175,7 @@ async function joinRoomById(roomId) {
       });
     });
     // Listening for remote ICE candidates above
-  }
+  } 
 }
 
 async function openUserMedia(e) {

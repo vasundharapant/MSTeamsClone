@@ -17,7 +17,7 @@
 
     <link rel="stylesheet" type="text/css" href="main.css">
 </head>
-<body onload="printUser()">
+<body onload="getUser()">
 
 <!--Navbar-->
 
@@ -115,10 +115,17 @@
 
   function logoutPage(){
     console.log('in logout function');    
+    firebase.auth().signOut();
     window.location.href="./login.html";
   } 
-  function printUser(){
-    //console.log(firebase.auth().currentUser);
+  function getUser(){
+    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
+    console.log(userInfo[0]);
+    firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
+    .then(e=>{
+      console.log("logged in");
+    });
+    
   }
 </script>
 <script src="app2.js"></script>
