@@ -10,3 +10,20 @@ nav{
 button {
     margin: 0.2em 0.1em;
 }
+.meetBtn{
+    border-radius: 10px;
+    border:0px;
+    visibility: hidden;        
+}
+#videoBtn,#micBtn{
+    background-color: #019b7a;    
+}
+#videoBtn:hover,#micBtn:hover{
+    background-color:#2e2e9b;
+}
+#hangupBtn{
+    background-color:rgb(180, 13, 13);
+}
+#hangupBtn:hover{
+    background-color:rgb(128, 1, 1) ;
+}

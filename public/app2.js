@@ -15,6 +15,7 @@ let peerConnection = null;
 let localStream = null;
 let remoteStream = null;
 let roomId = null;
+let caller=1;   //if you are the caller then caller=1, if you are the callee then caller =0
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -23,7 +24,7 @@ function init() {
   document.querySelector('#joinBtn').addEventListener('click', joinRoom);
 }
 
-async function createRoom() {
+async function createRoom() {  
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
   const db = firebase.firestore();
@@ -77,12 +78,13 @@ async function createRoom() {
 
   // Listening for remote session description below
   roomRef.onSnapshot(async snapshot => {
-    const data = snapshot.data();
-    if (!peerConnection.currentRemoteDescription && data && data.answer) {
+    const data = snapshot.data();    
+    if (!peerConnection.currentRemoteDescription && data && data.answer) //adding answer
+    {
       console.log('Got remote description: ', data.answer);
       const rtcSessionDescription = new RTCSessionDescription(data.answer);
       await peerConnection.setRemoteDescription(rtcSessionDescription);
-    }
+    }   
   });
   // Listening for remote session description above
 
@@ -97,6 +99,7 @@ async function createRoom() {
     });
   });
   // Listen for remote ICE candidates above
+  document.getElementById("hangupBtn").disabled=false;  
 }
 
 function joinRoom() {
@@ -114,6 +117,7 @@ function joinRoom() {
 }
 
 async function joinRoomById(roomId) {
+  caller=0;   //you are the callee, someone else created the room
   const db = firebase.firestore();
   const roomRef = db.collection('rooms').doc(`${roomId}`);
   const roomSnapshot = await roomRef.get();
@@ -175,12 +179,16 @@ async function joinRoomById(roomId) {
       });
     });
     // Listening for remote ICE candidates above
+    document.getElementById("hangupBtn").disabled=false;    
   } 
 }
 
 async function openUserMedia(e) {
   const stream = await navigator.mediaDevices.getUserMedia(
       {video: true, audio: true});
+  stream.getTracks().forEach(track=>{
+    track.enabled=false;
+  });
   document.querySelector('#localVideo').srcObject = stream;
   localStream = stream;
   remoteStream = new MediaStream();
@@ -190,9 +198,52 @@ async function openUserMedia(e) {
   document.querySelector('#cameraBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = false;
   document.querySelector('#createBtn').disabled = false;
-  document.querySelector('#hangupBtn').disabled = false;
+  //document.querySelector('#hangupBtn').disabled = false;
+  document.getElementById("introMsg").innerText="";
+  displayMeetButtons();
 }
 
+function displayMeetButtons(){
+  document.getElementById('hangupBtn').style.visibility="visible";
+  document.getElementById('videoBtn').style.visibility="visible";
+  document.getElementById('micBtn').style.visibility="visible";
+}
+function toggleAudio() {
+  let flag=1;     //variable to check which icon should be displayed on the mute button
+  localStream.getAudioTracks().forEach(track => {
+    track.enabled = !track.enabled;    
+    if(track.enabled==false)
+      flag=0;
+  });
+  const muteIcon=document.getElementById("muteIcon");
+  if(flag==1)
+  {
+    muteIcon.classList.remove("fa-microphone-slash");
+    muteIcon.classList.add("fa-microphone-alt");
+  }
+  else{
+    muteIcon.classList.remove("fa-microphone-alt");
+    muteIcon.classList.add("fa-microphone-slash");
+  }  
+}
+function toggleVideo() {
+  let flag=1;     ////variable to check which icon should be displayed on the video button
+  localStream.getVideoTracks().forEach(track => {
+    track.enabled = !track.enabled;
+    if(track.enabled==false)
+      flag=0;
+  });
+  const stopVideo=document.getElementById("stopVideo");
+  if(flag==1)
+  {
+    stopVideo.classList.remove("fa-video-slash");
+    stopVideo.classList.add("fa-video");
+  }
+  else{
+    stopVideo.classList.remove("fa-video");
+    stopVideo.classList.add("fa-video-slash");
+  }  
+}
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
   tracks.forEach(track => {
@@ -214,8 +265,11 @@ async function hangUp(e) {
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#hangupBtn').disabled = true;
   document.querySelector('#currentRoom').innerText = '';
+  document.querySelector('#hangupBtn').style.visibility="hidden";
+  document.querySelector('#videoBtn').style.visibility="hidden";
+  document.querySelector('#micBtn').style.visibility="hidden";
 
-  // Delete room on hangup
+  // Delete caller/callee candidates from room on hangup  
   if (roomId) {
     const db = firebase.firestore();
     const roomRef = db.collection('rooms').doc(roomId);
@@ -223,11 +277,15 @@ async function hangUp(e) {
     calleeCandidates.forEach(async candidate => {
       await candidate.ref.delete();
     });
+    await roomRef.update({ answer: firebase.firestore.FieldValue.delete() });    
+
     const callerCandidates = await roomRef.collection('callerCandidates').get();
     callerCandidates.forEach(async candidate => {
       await candidate.ref.delete();
     });
     await roomRef.delete();
+    
+    
   }
 
   document.location.reload(true);
