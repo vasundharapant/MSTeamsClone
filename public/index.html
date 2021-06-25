@@ -131,7 +131,9 @@
     window.location.href="./login.html";
   } 
   function getUser(){
-    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));   
+    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
+    if(!userInfo)
+      window.location.href="./login.html";   
     firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
     .then(e=>{
       console.log("logged in");
