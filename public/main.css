@@ -16,14 +16,40 @@ button {
     visibility: hidden;        
 }
 #videoBtn,#micBtn{
-    background-color: #019b7a;    
+    background-color:  #2e2e9b;  
 }
 #videoBtn:hover,#micBtn:hover{
-    background-color:#2e2e9b;
+    background-color:#019b7a;
 }
 #hangupBtn{
     background-color:rgb(180, 13, 13);
 }
 #hangupBtn:hover{
     background-color:rgb(128, 1, 1) ;
+}
+div#videos {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+video {
+    background: black;
+    object-fit: contain;
+    width: 40vw;
+    height: 50vh;
+    display: block;
+    margin: auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+@media (max-width: 600px) {
+    body, #message {
+        margin-top: 0;
+        background: white;
+        box-shadow: none;
+    }
+
+    body {
+        border-top: 16px solid #ffa100;
+    }
 }

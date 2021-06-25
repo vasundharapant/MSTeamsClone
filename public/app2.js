@@ -4,7 +4,7 @@ const configuration = {
     {
       urls: [
         'stun:stun1.l.google.com:19302',
-        'stun:stun2.l.google.com:19302',
+        'stun:stun2.l.google.com:19302',        
       ],
     },
   ],
@@ -103,15 +103,10 @@ async function createRoom() {
 }
 
 function joinRoom() {
-  document.querySelector('#createBtn').disabled = true;
-  document.querySelector('#joinBtn').disabled = true;
-
   document.querySelector('#confirmJoinBtn').
       addEventListener('click', async () => {
-        roomId = document.querySelector('#room-id').value;
-        console.log('Join room: ', roomId);
-        document.querySelector(
-            '#currentRoom').innerText = `Current room is ${roomId} - You are the callee!`;
+        roomId = document.querySelector('#room-id').value.trim();
+        console.log('Join room: ', roomId);        
         await joinRoomById(roomId);
       }, {once: true});  
 }
@@ -124,6 +119,12 @@ async function joinRoomById(roomId) {
   console.log('Got room:', roomSnapshot.exists);
 
   if (roomSnapshot.exists) {
+    document.querySelector('#createBtn').disabled = true;
+    document.querySelector('#joinBtn').disabled = true;
+    document.querySelector(
+      '#currentRoom').innerText = `Current room is ${roomId} - You are the callee!`;
+    document.querySelector(
+      '#currentRoom').style.color="black";
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
     registerPeerConnectionListeners();
@@ -181,6 +182,12 @@ async function joinRoomById(roomId) {
     // Listening for remote ICE candidates above
     document.getElementById("hangupBtn").disabled=false;    
   } 
+  else{       //if room does not exist
+    document.querySelector(
+      '#currentRoom').innerText = `Sorry! The room could not be found. You can try creating a room with CreateRoom Button first.`;
+    document.querySelector(
+        '#currentRoom').style.color="red";
+  }
 }
 
 async function openUserMedia(e) {

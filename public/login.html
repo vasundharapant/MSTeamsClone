@@ -111,8 +111,11 @@
             console.log("logged in"); 
             //console.log(firebaseUser);
             let userInfo=[emailID,Password];
-            sessionStorage.setItem('userInfo',JSON.stringify(userInfo));             
-            window.location.href="./index.html";                            
+            sessionStorage.setItem('userInfo',JSON.stringify(userInfo));   
+            setTimeout(function(){
+              if(firebase.auth().currentUser)
+                window.location.href="./index.html";
+            },1000);                                           
         }
         else{
             console.log("not logged in");

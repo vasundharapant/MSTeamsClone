@@ -42,10 +42,10 @@
           </li>
           <li class="nav-item dropdown">
           <a class="nav-link" href="#">VideoCall</a>
-          </li>   
-          <li>
-            <button type="button" class="btn btn-dark" onclick="logoutPage()" >Logout</button>
-          </li>       
+          </li> 
+          <li class="nav-item">
+            <a class="nav-link" href="./login.html">Log Out</a>
+          </li>                
       </ul>                    
       </div>
   </div>
@@ -67,15 +67,13 @@
 <div>
     <span id="currentRoom"></span>
 </div>
-<div id="videos">
-    <div class="pt-1 pb-1 row container-fluid">
-        <div class="col col-sm">
-            <video id="localVideo" muted autoplay playsinline></video>
-        </div>
-        <div class="col col-sm">
-            <video id="remoteVideo" autoplay playsinline></video>
-        </div>
-    </div>   
+<div id="videos" class="d-flex align-items-center" >
+  
+    <video id="localVideo" muted autoplay playsinline></video>
+ 
+  
+    <video id="remoteVideo" autoplay playsinline></video>    
+    
 </div>
 <div>
     <button type="button" onclick="toggleAudio()" class="btn btn-primary meetBtn" id="micBtn" data-toggle="tooltip" data-placement="top" title="mute/unmute" >
@@ -103,7 +101,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button id="confirmJoinBtn" type="button" class="btn btn-primary">Join</button>
+          <button id="confirmJoinBtn" type="button" class="btn btn-primary" data-bs-dismiss="modal">Join</button>
         </div>
       </div>
     </div>
@@ -133,8 +131,7 @@
     window.location.href="./login.html";
   } 
   function getUser(){
-    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
-    console.log(userInfo[0]);
+    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));   
     firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
     .then(e=>{
       console.log("logged in");
