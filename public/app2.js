@@ -1,4 +1,50 @@
+  // Your web app's Firebase configuration
+  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
+  var firebaseConfig = {
+    apiKey: "AIzaSyCm27xJOmzApVjEbQYSZISg1RbWaumAp7g",
+    authDomain: "fir-rtc-ff458.firebaseapp.com",
+    projectId: "fir-rtc-ff458",
+    storageBucket: "fir-rtc-ff458.appspot.com",
+    messagingSenderId: "368699893015",
+    appId: "1:368699893015:web:3f07c542726f4440748352",
+    measurementId: "G-QFX02TVEB7"
+  };
+  // Initialize Firebase
+  firebase.initializeApp(firebaseConfig);
 
+  function logoutPage(){
+    console.log('in logout function');    
+    firebase.auth().signOut();
+    window.location.href="./login.html";
+  } 
+  function getUser(){
+    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
+    if(!userInfo)
+      window.location.href="./login.html";   
+    firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
+    .then(async e=>{
+      console.log("logged in");
+      const db=firebase.firestore();
+      const uid=firebase.auth().currentUser.uid;
+      const docRef=db.collection('users').doc(uid);     
+      docRef.get().then((doc) => {
+        if (doc.exists) {
+            //console.log("name:"+ doc.data().name);
+            document.getElementById('welcomeText').innerHTML=`Hey ${doc.data().name}! Welcome to MS Teams Clone!`;
+        } else {
+            // doc.data() will be undefined in this case
+            console.log("No such user!");
+        }
+        }).catch((error) => {
+            console.log("Error getting document:", error);
+        });
+      
+    });
+    
+  }
+
+
+//WebRTC part
 const configuration = {
   iceServers: [
     {

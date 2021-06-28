@@ -1,0 +1,27 @@
+{
+  "name": "MSClone",
+  "version": "1.0.0",
+  "description": "This is a video calling app developed using WebRTC peer to peer connection. Google Firestore is used for signalling.",
+  "main": "index.js",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "firebase": "^8.6.8",
+    "nodemon": "^2.0.7"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vasundharapant/MSTeamsClone.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vasundharapant/MSTeamsClone/issues"
+  },
+  "homepage": "https://github.com/vasundharapant/MSTeamsClone#readme"
+}
