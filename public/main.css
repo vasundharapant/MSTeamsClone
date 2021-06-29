@@ -3,6 +3,7 @@ body {
     color: rgba(0, 0, 0, 0.87);
     font-family: Roboto, Helvetica, Arial, sans-serif;
     text-align: center;
+    font-family: 'Merriweather', serif;
 }
 nav{
     margin-bottom: 1em;

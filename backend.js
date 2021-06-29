@@ -1,6 +1,5 @@
 const express=require('express');
 const exphbs=require('express-handlebars');
-const bodyParser=require('body-parser');
 const nodemailer=require('nodemailer');
 const path=require('path');
 
@@ -16,15 +15,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(express.json());
 
 
-app.post('/send',async (req,res)=>{
+app.post('/sendmail',async (req,res)=>{
 
     console.log('post request received');
     const receiver=req.body.receiver;
-    //const meetID=req.body.meetID;
-    const meetID=1234;
+    //res.end();    
+    const meetID=req.body.roomID;
+    //const meetID=1234;
     const output=`
-        <p>You have been invited to a meeting on MS Teams Clone WebApp!</p>
+        <h2>You have been invited to a meeting on MS Teams Clone WebApp!</h2>
         <p>Your meeting ID is:<b> ${meetID}</b> </p>
+        <br>
+        <p> We hope you enjoy our app. See you there!</p>
         `;
     
     let transporter = nodemailer.createTransport({
@@ -50,10 +52,9 @@ app.post('/send',async (req,res)=>{
     // send mail with defined transport object
     let info = await transporter.sendMail(mailOptions);
     console.log("Message sent: %s", info.messageId);
-    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
-    return;
+    console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));    
     res.end();
-    
+    return;
 });
 
 

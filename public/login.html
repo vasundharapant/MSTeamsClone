@@ -16,30 +16,38 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
     <link rel="stylesheet" type="text/css" href="login.css">
+
+    <!--Font - Merriweather-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
     
 </head>
 <body onload="logoutUser()">
-    <div style="height:100vh; width:100vw">    
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">MSTeams Clone</a>            
-        </div>
-      </nav>       
-        <h1 class="pt-5">Welcome to MS Teams Clone!</h1>
-        <h2 class="mb-4">You need to sign in first:</h2>
-        <form >
-            <div class="mb-3">
-            <label for="InputEmail1" class="form-label"><b>Email address:</b></label>
-            <input type="email" class="form-control" id="InputEmail1" placeholder="Enter your email ID" aria-describedby="emailHelp">
-            <div id="emailHelp" class="form-text">If you don't have an account, Sign up first!</div>
-            </div>          
-            <div class="mb-3">
-            <label for="InputPassword1" class="form-label"><b>Password:</b></label>
-            <input type="password" class="form-control" placeholder="Enter password" id="InputPassword1">
-            </div>        
-            <button id="loginbtn" class="btn btn-primary">Log In</button>
-            <button id="signupbtn" class="btn btn-dark">Sign Up</button>
-        </form>
+<div style="height:100vh; width:100vw">    
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-5 sticky-top">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+          <img src="./images/logo1.png" alt="" width="30" height="24" class="d-inline-block mx-2" style="border-radius: 3px;">
+          MSTeams Clone
+        </a>            
+    </div>
+</nav>       
+    <h1 class="pt-5"><b>Welcome to MS Teams Clone!</b></h1>
+    <h2 class="mb-4">You need to sign in first:</h2>
+    <form >
+        <div class="mb-3">
+        <label for="InputEmail1" class="form-label"><b>Email address:</b></label>
+        <input type="email" class="form-control" id="InputEmail1" placeholder="Enter your email ID" aria-describedby="emailHelp">
+        <div id="emailHelp" class="form-text" style="color: white;">If you don't have an account, Sign up first!</div>
+        </div>          
+        <div class="mb-3">
+        <label for="InputPassword1" class="form-label"><b>Password:</b></label>
+        <input type="password" class="form-control" placeholder="Enter password" id="InputPassword1">
+        </div>        
+        <button id="loginbtn" class="btn btn-primary">Log In</button>
+        <button id="signupbtn" class="btn btn-dark">Sign Up</button>
+    </form>
 </div>
 <div id="myModal" class="modal" tabindex="-1">
     <div class="modal-dialog">

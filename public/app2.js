@@ -42,6 +42,19 @@
     });
     
   }
+  function sendmail(){
+    const data={receiver: document.getElementById('receiverEmail').value,
+            roomID: roomId};
+    console.log(data);
+    const options={
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body:JSON.stringify(data)
+    };
+    fetch('/sendmail',options);
+  }
 
 
 //WebRTC part
@@ -113,7 +126,10 @@ async function createRoom() {
   document.querySelector(
       '#currentRoom').innerText = `Current room is ${roomRef.id} - You are the caller!`;
   // Code for creating a room above
-
+  document.getElementById('sendMailBtn').style.display="block";
+  setTimeout(()=>{
+    $("#sendMailModal").modal('show');    
+  },1000);
   peerConnection.addEventListener('track', event => {
     console.log('Got remote track:', event.streams[0]);
     event.streams[0].getTracks().forEach(track => {
@@ -321,6 +337,7 @@ async function hangUp(e) {
   document.querySelector('#hangupBtn').style.visibility="hidden";
   document.querySelector('#videoBtn').style.visibility="hidden";
   document.querySelector('#micBtn').style.visibility="hidden";
+  document.getElementById('sendMailBtn').style.display="block";
 
   // Delete caller/callee candidates from room on hangup  
   if (roomId) {

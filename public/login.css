@@ -1,6 +1,13 @@
 body{
     text-align: center;
+    font-family: 'Merriweather', serif;
     align-items: center;
+    background-image: url('./images/videocall.jpg');
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-color: #cccccc;
+    background-size: contain;
+    background-blend-mode:multiply;
 }
 .form-control{
     width: auto;
