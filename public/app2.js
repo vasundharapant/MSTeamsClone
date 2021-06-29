@@ -33,7 +33,8 @@
             document.getElementById('welcomeText').innerHTML=`Hey ${doc.data().name}! Welcome to MS Teams Clone!`;
         } else {
             // doc.data() will be undefined in this case
-            console.log("No such user!");
+            document.getElementById('welcomeText').innerHTML=`Hey there! Welcome to MS Teams Clone!`;
+            console.log("No nickname given!");
         }
         }).catch((error) => {
             console.log("Error getting document:", error);
