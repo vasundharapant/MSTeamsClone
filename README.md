@@ -1,2 +1,2 @@
-# Firebase + WebRTC 
-This is a video calling app developed using WebRTC peer to peer connection. Google Firestore is used for signalling.
+# MS Teams Clone 
+Video calling app which uses WebRTC for video calling and firestore for signalling. It employs firebase authentication, and also uses firebase as database. Node.js using express framework is used for backend. Nodemailer is used for sending mails.
