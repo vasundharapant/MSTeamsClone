@@ -60,46 +60,130 @@
   </div>
 </nav>
 
-<h1 id="welcomeText" style="font-family:Arial, Helvetica, sans-serif">Loading...</h1>
-<p id="introMsg">You first need to give access to your media for starting a video call:)</p>
-<div id="buttons">
-    <button type="button" class="btn btn-primary" id="cameraBtn" data-toggle="tooltip" data-placement="top" title="Don't worry! We won't send your video or audio anywhere until you say so!">
-        Give Access to camera & microphone
-    </button>    
-    <button type="button" class="btn btn-primary" disabled id="createBtn">
-        Create room
-    </button>
-    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinModal" disabled id="joinBtn">
-        Join room
-    </button>    
-</div>  
+<div class="row" style="margin:0">
+  <div id="videoDiv" class="col" style="margin:0">
+    <h1 id="welcomeText" style="font-family:Arial, Helvetica, sans-serif">Loading...</h1>
+    <p id="introMsg">You first need to give access to your media for starting a video call:)</p>
+    <div id="buttons">
+        <button type="button" class="btn btn-primary" id="cameraBtn" data-toggle="tooltip" data-placement="top" title="Don't worry! We won't send your video or audio anywhere until you say so!">
+            Give Access to camera & microphone
+        </button>    
+        <button type="button" class="btn btn-primary" disabled id="createBtn">
+            Create room
+        </button>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinModal" disabled id="joinBtn">
+            Join room
+        </button>    
+    </div>  
 
-<div class="pt-2 pb-2">
-    <span id="currentRoom" ></span>
+    <div class="pt-2 pb-2">
+        <span id="currentRoom" ></span>
+    </div>
+
+    <button type="button" class="btn btn-primary" id="sendMailBtn" data-bs-toggle="modal" data-bs-target="#sendMailModal" style="display: none;margin: auto;">
+      Send Email Invite
+    </button>
+
+    <div id="videos" class="d-flex align-items-center justify-content-center" >
+        <video id="localVideo" muted autoplay playsinline></video> 
+        <video id="remoteVideo" autoplay playsinline></video>        
+    </div>
+    <div class='mb-5'>
+        <button type="button" onclick="toggleAudio()" class="btn btn-primary meetBtn" id="micBtn" data-toggle="tooltip" data-placement="top" title="mute/unmute" >
+          <i id="muteIcon" class="fas fa-microphone-slash"></i>
+        </button>
+        <button type="button" class="btn btn-primary meetBtn" disabled id="hangupBtn" data-toggle="tooltip" data-placement="top" title="End call">
+          <i class="fas fa-phone-slash"></i>
+        </button>
+        <button type="button" onclick="toggleVideo()" class="btn btn-primary meetBtn" id="videoBtn" data-toggle="tooltip" data-placement="top" title="display/hide video">
+          <i id="stopVideo" class="fas fa-video-slash"></i>
+        </button>
+    </div>  
+  </div>
+
+  <!--Chat box-->
+  <div class="col col-xs-12 col-sm-6 col-md-4 col-lg-3 container content" style="display: none; position:fixed;right: 0;bottom: 0;">       
+          <div class="card">
+            <div class="card-header">Chat</div>
+            <div class="card-body height3 scroll">
+              <ul class="chat-list">
+                <li class="in">
+                  <div class="chat-img">
+                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
+                  </div>
+                  <div class="chat-body">
+                    <div class="chat-message">
+                      <h5>Jimmy Willams</h5>
+                      <p>Raw denim heard of them tofu master cleanse</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="out">
+                  <div class="chat-img">
+                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
+                  </div>
+                  <div class="chat-body">
+                    <div class="chat-message">
+                      <h5>Serena</h5>
+                      <p>Next level veard</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="in">
+                  <div class="chat-img">
+                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
+                  </div>
+                  <div class="chat-body">
+                    <div class="chat-message">
+                      <h5 class="name">Jimmy Willams</h5>
+                      <p>Will stumptown scenes coffee viral.</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="out">
+                  <div class="chat-img">
+                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
+                  </div>
+                  <div class="chat-body">
+                    <div class="chat-message">
+                      <h5>Serena</h5>
+                      <p>Tofu master best deal</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="in">
+                  <div class="chat-img">
+                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
+                  </div>
+                  <div class="chat-body">
+                    <div class="chat-message">
+                      <h5 class="name">Jimmy Willams</h5>
+                      <p>Will stumptown scenes coffee viral.</p>
+                    </div>
+                  </div>
+                </li>
+                <li class="out">
+                  <div class="chat-img">
+                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
+                  </div>
+                  <div class="chat-body">
+                    <div class="chat-message">
+                      <h5>Serena</h5>
+                      <p>Tofu master best deal</p>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+            <div class="card-text mb-2" >
+              <input id="myMsg" type="text" style="width: 50%;">
+              <button id="sendMsgBtn" onclick="sendMessage()" type="button" class="btn btn-dark" style="width: 30%;"disabled>Send</button>
+            </div>
+          </div>
+       
+   
+  </div>
 </div>
-
-<button type="button" class="btn btn-primary" id="sendMailBtn" data-bs-toggle="modal" data-bs-target="#sendMailModal" style="display: none;margin: auto;">
-  Send Email Invite
-</button>
-
-<div id="videos" class="d-flex align-items-center" >
-  
-    <video id="localVideo" muted autoplay playsinline></video> 
-    <video id="remoteVideo" autoplay playsinline></video>    
-    
-</div>
-<div class='mb-5'>
-    <button type="button" onclick="toggleAudio()" class="btn btn-primary meetBtn" id="micBtn" data-toggle="tooltip" data-placement="top" title="mute/unmute" >
-      <i id="muteIcon" class="fas fa-microphone-slash"></i>
-    </button>
-    <button type="button" class="btn btn-primary meetBtn" disabled id="hangupBtn" data-toggle="tooltip" data-placement="top" title="End call">
-      <i class="fas fa-phone-slash"></i>
-    </button>
-    <button type="button" onclick="toggleVideo()" class="btn btn-primary meetBtn" id="videoBtn" data-toggle="tooltip" data-placement="top" title="display/hide video">
-      <i id="stopVideo" class="fas fa-video-slash"></i>
-    </button>
-</div>  
-
 <!-- Modal Join Room-->
    <div class="modal fade" id="joinModal" tabindex="-1" aria-labelledby="joinModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -142,6 +226,8 @@
       </div>
     </div>
    </div>
+
+
 
 <!--Contact Info-->
 <div id="contactinfo" class="container-fluid padding">

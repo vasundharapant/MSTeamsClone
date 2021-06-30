@@ -58,7 +58,7 @@
   }
 
 
-//WebRTC part
+//WebRTC part - for video calling and chatting
 const configuration = {
   iceServers: [
     {
@@ -75,6 +75,7 @@ let peerConnection = null;
 let localStream = null;
 let remoteStream = null;
 let roomId = null;
+let dataChannel=null;
 let caller=1;   //if you are the caller then caller=1, if you are the callee then caller =0
 
 function init() {
@@ -91,6 +92,11 @@ async function createRoom() {
   const roomRef = await db.collection('rooms').doc();  
   console.log('Create PeerConnection with configuration: ', configuration); 
   peerConnection = new RTCPeerConnection(configuration);
+
+  dataChannel = peerConnection.createDataChannel('myChannel');   //data channel for sending messages
+  addEventListenerDC();   //add event listener for incoming messages in data channel
+  document.getElementById('sendMsgBtn').disabled=false;  //allow sending messages
+
 
   registerPeerConnectionListeners();
 
@@ -190,6 +196,14 @@ async function joinRoomById(roomId) {
       '#currentRoom').style.color="black";
     console.log('Create PeerConnection with configuration: ', configuration);
     peerConnection = new RTCPeerConnection(configuration);
+
+    peerConnection.addEventListener('datachannel', event => {
+        console.log('data channel received');
+        dataChannel = event.channel;
+        addEventListenerDC();   //add event listener for incoming messages in data channel
+    });
+    document.getElementById('sendMsgBtn').disabled=false;   //allow sending messages
+
     registerPeerConnectionListeners();
     localStream.getTracks().forEach(track => {
       peerConnection.addTrack(track, localStream);
@@ -314,6 +328,17 @@ function toggleVideo() {
     stopVideo.classList.add("fa-video-slash");
   }  
 }
+function addEventListenerDC(){      //function that adds event listener to incoming messages in data channel
+  dataChannel.addEventListener('message', event => {
+    const message = event.data;
+    console.log(message);
+  });
+}
+function sendMessage(){
+  const message = document.getElementById('myMsg').value;
+  if(message!='')
+    dataChannel.send(message);
+}
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
   tracks.forEach(track => {
@@ -323,6 +348,8 @@ async function hangUp(e) {
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
+  if(dataChannel)
+    dataChannel.close();
 
   if (peerConnection) {
     peerConnection.close();
@@ -339,6 +366,7 @@ async function hangUp(e) {
   document.querySelector('#videoBtn').style.visibility="hidden";
   document.querySelector('#micBtn').style.visibility="hidden";
   document.getElementById('sendMailBtn').style.display="block";
+  document.getElementById('sendMsgBtn').disabled=true;  //disable sending messages
 
   // Delete caller/callee candidates from room on hangup  
   if (roomId) {
