@@ -47,7 +47,7 @@
           <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
           <li class="nav-item">
-          <a class="nav-link" href="#">Chat</a>
+          <a id="openChatBox" class="nav-link" href="#">Chat</a>
           </li>
           <li class="nav-item dropdown">
           <a class="nav-link" href="#contactinfo">Contact-Info</a>
@@ -102,19 +102,19 @@
   </div>
 
   <!--Chat box-->
-  <div class="col col-xs-12 col-sm-6 col-md-4 col-lg-3 container content" style="display: none; position:fixed;right: 0;bottom: 0;">       
+  <div id="chatBox" class="col col-xs-12 col-sm-6 col-md-4 col-lg-3 container content" style="display: none; position:fixed;right: 0;bottom: 0;">       
           <div class="card">
             <div class="card-header">Chat</div>
             <div class="card-body height3 scroll">
-              <ul class="chat-list">
-                <li class="in">
+              <ul id="myChat" class="chat-list">
+                <!-- <li class="in">
                   <div class="chat-img">
                     <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
                   </div>
                   <div class="chat-body">
                     <div class="chat-message">
-                      <h5>Jimmy Willams</h5>
-                      <p>Raw denim heard of them tofu master cleanse</p>
+                      <h5>Jimmy</h5>
+                      <p>Hi</p>
                     </div>
                   </div>
                 </li>
@@ -125,54 +125,10 @@
                   <div class="chat-body">
                     <div class="chat-message">
                       <h5>Serena</h5>
-                      <p>Next level veard</p>
+                      <p>Hello</p>
                     </div>
                   </div>
-                </li>
-                <li class="in">
-                  <div class="chat-img">
-                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
-                  </div>
-                  <div class="chat-body">
-                    <div class="chat-message">
-                      <h5 class="name">Jimmy Willams</h5>
-                      <p>Will stumptown scenes coffee viral.</p>
-                    </div>
-                  </div>
-                </li>
-                <li class="out">
-                  <div class="chat-img">
-                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
-                  </div>
-                  <div class="chat-body">
-                    <div class="chat-message">
-                      <h5>Serena</h5>
-                      <p>Tofu master best deal</p>
-                    </div>
-                  </div>
-                </li>
-                <li class="in">
-                  <div class="chat-img">
-                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
-                  </div>
-                  <div class="chat-body">
-                    <div class="chat-message">
-                      <h5 class="name">Jimmy Willams</h5>
-                      <p>Will stumptown scenes coffee viral.</p>
-                    </div>
-                  </div>
-                </li>
-                <li class="out">
-                  <div class="chat-img">
-                    <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar6.png">
-                  </div>
-                  <div class="chat-body">
-                    <div class="chat-message">
-                      <h5>Serena</h5>
-                      <p>Tofu master best deal</p>
-                    </div>
-                  </div>
-                </li>
+                </li> -->               
               </ul>
             </div>
             <div class="card-text mb-2" >
@@ -205,27 +161,27 @@
    </div>
 
 <!-- Modal Send mail invite-->
-   <div class="modal fade" id="sendMailModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title"><b>Send Room ID via Email</b></h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          You can email the meet invite to a friend by typing his/her email here:
-          <div class="pt-1 pb-1">
-            <label for="receiverEmail">Email to: </label>
-            <input id="receiverEmail" name="receiver" type="email">    
-          </div>      
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-          <button class="btn btn-primary" type="button" onclick="sendmail()" data-bs-dismiss="modal">Send mail</button>
-        </div>
+  <div class="modal fade" id="sendMailModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title"><b>Send Room ID via Email</b></h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        You can email the meet invite to a friend by typing his/her email here:
+        <div class="pt-1 pb-1">
+          <label for="receiverEmail">Email to: </label>
+          <input id="receiverEmail" name="receiver" type="email">    
+        </div>      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button class="btn btn-primary" type="button" onclick="sendmail()" data-bs-dismiss="modal">Send mail</button>
       </div>
     </div>
-   </div>
+  </div>
+  </div>
 
 
 

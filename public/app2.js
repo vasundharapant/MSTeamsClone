@@ -43,6 +43,7 @@
     });
     
   }
+//function which calls backend to send meet ID through mail
   function sendmail(){
     const data={receiver: document.getElementById('receiverEmail').value,
             roomID: roomId};
@@ -57,6 +58,27 @@
     fetch('/sendmail',options);
   }
 
+//on Click listener for opening chat Box
+
+document.getElementById('openChatBox').addEventListener('click',()=>{
+  const videoDiv=document.getElementById('videoDiv');
+  const videoElement=document.querySelectorAll('video');
+  if(document.getElementById('chatBox').style.display=="none")
+  {
+    document.getElementById('chatBox').style.display="block";    
+    videoDiv.classList.add('col-sm-6', 'col-md-8', 'col-lg-9');
+    videoElement[0].style.width="30vw";   
+    videoElement[1].style.width="30vw"; 
+  }
+  else      //close the chat Box
+  {
+    document.getElementById('chatBox').style.display="none";
+    videoDiv.classList.remove('col-sm-6', 'col-md-8', 'col-lg-9');
+    videoElement[0].style.width="40vw";   
+    videoElement[1].style.width="40vw"; 
+  }
+    
+});
 
 //WebRTC part - for video calling and chatting
 const configuration = {
@@ -331,13 +353,64 @@ function toggleVideo() {
 function addEventListenerDC(){      //function that adds event listener to incoming messages in data channel
   dataChannel.addEventListener('message', event => {
     const message = event.data;
-    console.log(message);
+    //console.log(message);
+
+    //add the incoming message to html(in chat box)
+    const myNewMsg=document.createElement("li");
+    myNewMsg.classList.add('in');
+    const myImgDiv=document.createElement('div');
+    myImgDiv.classList.add('chat-img');
+    const myImg=document.createElement('img');
+    myImg.src="https://bootdey.com/img/Content/avatar/avatar1.png";
+    myImg.alt="Avtar";
+    myImgDiv.appendChild(myImg);
+    const myChatDiv=document.createElement('div');
+    myChatDiv.classList.add('chat-body');
+    const myChatMsg=document.createElement('div');
+    myChatMsg.classList.add('chat-message');
+    const myName=document.createElement('h5');
+    myName.textContent="XYZ";
+    const myMsg=document.createElement('p');
+    myMsg.textContent=message;
+    myChatMsg.appendChild(myName);
+    myChatMsg.appendChild(myMsg);
+    myChatDiv.appendChild(myChatMsg);
+    myNewMsg.appendChild(myImgDiv);myNewMsg.appendChild(myChatDiv);
+    document.getElementById('myChat').appendChild(myNewMsg);
   });
 }
 function sendMessage(){
   const message = document.getElementById('myMsg').value;
+  document.getElementById('myMsg').value='';
   if(message!='')
+  {
     dataChannel.send(message);
+
+    //create html element to display sent message
+    const myNewMsg=document.createElement("li");
+    myNewMsg.classList.add('out');
+    const myImgDiv=document.createElement('div');
+    myImgDiv.classList.add('chat-img');
+    const myImg=document.createElement('img');
+    myImg.src="https://bootdey.com/img/Content/avatar/avatar6.png";
+    myImg.alt="Avtar";
+    myImgDiv.appendChild(myImg);
+    const myChatDiv=document.createElement('div');
+    myChatDiv.classList.add('chat-body');
+    const myChatMsg=document.createElement('div');
+    myChatMsg.classList.add('chat-message');
+    const myName=document.createElement('h5');
+    myName.textContent="You";
+    const myMsg=document.createElement('p');
+    myMsg.textContent=message;
+    myChatMsg.appendChild(myName);
+    myChatMsg.appendChild(myMsg);
+    myChatDiv.appendChild(myChatMsg);
+    myNewMsg.appendChild(myImgDiv);myNewMsg.appendChild(myChatDiv);
+    document.getElementById('myChat').appendChild(myNewMsg);
+
+  }
+    
 }
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();

@@ -158,6 +158,11 @@ hr.light{
     margin-right: 20px;
     text-align: right;
 }
+.chat-list .in .chat-body {
+    float: left;
+    margin-left: 20px;
+    text-align: left;
+}
 
 .chat-list .out .chat-message {
     background: #fc6d4c;
