@@ -27,6 +27,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Merriweather&display=swap" rel="stylesheet">
+    
+    
 </head>
 <body onload="getUser()">
 
@@ -46,8 +48,8 @@
           <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="#">Home</a>
           </li>
-          <li class="nav-item">
-          <a id="openChatBox" class="nav-link" href="#">Chat</a>
+          <li id="chatElementNav" class="nav-item d-flex">
+          <a id="openChatBox" class="nav-link" href="#" style="margin-right:2px;padding-right: 0;">Chat</a>
           </li>
           <li class="nav-item dropdown">
           <a class="nav-link" href="#contactinfo">Contact-Info</a>
@@ -88,7 +90,7 @@
         <video id="localVideo" muted autoplay playsinline></video> 
         <video id="remoteVideo" autoplay playsinline></video>        
     </div>
-    <div class='mb-5'>
+    <div id="myMeetBtns" class='mb-5'>
         <button type="button" onclick="toggleAudio()" class="btn btn-primary meetBtn" id="micBtn" data-toggle="tooltip" data-placement="top" title="mute/unmute" >
           <i id="muteIcon" class="fas fa-microphone-slash"></i>
         </button>
@@ -104,7 +106,9 @@
   <!--Chat box-->
   <div id="chatBox" class="col col-xs-12 col-sm-6 col-md-4 col-lg-3 container content" style="display: none; position:fixed;right: 0;bottom: 0;">       
           <div class="card">
-            <div class="card-header">Chat</div>
+            <div class="card-header">Chat
+              <button type="button" class="btn-close" onclick="toggleChatBox()" aria-label="Close" style="float:right;"></button>
+            </div>
             <div class="card-body height3 scroll">
               <ul id="myChat" class="chat-list">
                 <!-- <li class="in">
@@ -128,7 +132,7 @@
                       <p>Hello</p>
                     </div>
                   </div>
-                </li> -->               
+                </li>   -->             
               </ul>
             </div>
             <div class="card-text mb-2" >
@@ -182,6 +186,24 @@
     </div>
   </div>
   </div>
+
+<!--Error Modal-->
+<div id="myErrorModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Sorry!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">   
+          <p id="errormessage"></p>       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>          
+      </div>
+    </div>
+  </div>
+</div>
 
 
 

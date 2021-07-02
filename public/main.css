@@ -28,6 +28,13 @@ button {
 #hangupBtn:hover{
     background-color:rgb(128, 1, 1) ;
 }
+#myMeetBtns i{
+    font-size: 25px;
+    padding: 3px;
+}
+#myMeetBtns button{
+    margin: 0.5em;
+}
 div#videos {
     display: flex;
     flex-direction: row;
@@ -82,6 +89,16 @@ hr.light{
 }
 
 /*CSS for chat box*/
+.card-body{
+    /* background-image: url('./images/chat-bg2.png'); */
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position-x: center;
+    background-position-y: center;
+    background-color: #ffffff;
+    background-blend-mode:multiply;   
+    background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,.5)), url("./images/chat-bg3.png");
+}
 
 .chat-list {
     padding: 0;
@@ -90,7 +107,7 @@ hr.light{
 
 .chat-list li {
     margin-bottom: 10px;
-    overflow: auto;
+    overflow:visible;
     color: #ffffff;
 }
 

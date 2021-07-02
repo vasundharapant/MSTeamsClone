@@ -61,6 +61,16 @@
 //on Click listener for opening chat Box
 
 document.getElementById('openChatBox').addEventListener('click',()=>{
+  const notif=document.getElementById('chatNotif');
+  if(notif){
+    document.getElementById('chatElementNav').removeChild(notif);
+  }
+  toggleChatBox();    
+  
+});
+
+//function to open and close chat box
+function toggleChatBox(){
   const videoDiv=document.getElementById('videoDiv');
   const videoElement=document.querySelectorAll('video');
   if(document.getElementById('chatBox').style.display=="none")
@@ -77,8 +87,7 @@ document.getElementById('openChatBox').addEventListener('click',()=>{
     videoElement[0].style.width="40vw";   
     videoElement[1].style.width="40vw"; 
   }
-    
-});
+}
 
 //WebRTC part - for video calling and chatting
 const configuration = {
@@ -350,7 +359,9 @@ function toggleVideo() {
     stopVideo.classList.add("fa-video-slash");
   }  
 }
-function addEventListenerDC(){      //function that adds event listener to incoming messages in data channel
+
+//function that adds event listener to incoming messages in data channel
+function addEventListenerDC(){      
   dataChannel.addEventListener('message', event => {
     const message = event.data;
     //console.log(message);
@@ -377,8 +388,32 @@ function addEventListenerDC(){      //function that adds event listener to incom
     myChatDiv.appendChild(myChatMsg);
     myNewMsg.appendChild(myImgDiv);myNewMsg.appendChild(myChatDiv);
     document.getElementById('myChat').appendChild(myNewMsg);
+
+    //if chat box is on, leave it, else display notif on navbar
+    if(document.getElementById('chatBox').style.display=="none")
+    {
+     /*  <span class="badge badge-pill badge-primary" style="float:right;margin-bottom:-10px;">!</span>  */
+      const notif=document.createElement('span');
+      notif.setAttribute('id','chatNotif');
+      notif.classList.add('badge','badge-pill','badge-primary');
+      notif.style.background="#24a0ed";notif.style.margin="auto";
+      notif.innerHTML="!";
+      document.getElementById('chatElementNav').appendChild(notif);
+    }
   });
 }
+//adding event listener for pressing enter key in chat box
+document.getElementById('myMsg').addEventListener('keydown',(e)=>{  
+  if(e.key=='Enter' && dataChannel)
+  {
+    sendMessage();
+  }
+  else if(e.key=='Enter')
+  {
+    document.getElementById('errormessage').innerHTML="You need to be on a call to send a message";
+      $('#myErrorModal').modal('show');
+  }
+});
 function sendMessage(){
   const message = document.getElementById('myMsg').value;
   document.getElementById('myMsg').value='';
@@ -438,8 +473,9 @@ async function hangUp(e) {
   document.querySelector('#hangupBtn').style.visibility="hidden";
   document.querySelector('#videoBtn').style.visibility="hidden";
   document.querySelector('#micBtn').style.visibility="hidden";
-  document.getElementById('sendMailBtn').style.display="block";
+  document.getElementById('sendMailBtn').style.display="none";
   document.getElementById('sendMsgBtn').disabled=true;  //disable sending messages
+  document.getElementById('myChat').innerHTML='';
 
   // Delete caller/callee candidates from room on hangup  
   if (roomId) {
@@ -471,6 +507,13 @@ function registerPeerConnectionListeners() {
 
   peerConnection.addEventListener('connectionstatechange', () => {
     console.log(`Connection state change: ${peerConnection.connectionState}`);
+    if(peerConnection.connectionState=='failed')
+    {
+      document.getElementById('errormessage').textContent="It seems that the connection was lost from the other end.";
+      $('myErrorModal').modal('show');
+      hangUp();
+    }
+      
   });
 
   peerConnection.addEventListener('signalingstatechange', () => {

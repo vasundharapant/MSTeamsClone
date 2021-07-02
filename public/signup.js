@@ -18,33 +18,40 @@ const loginbtn=document.getElementById('loginbtn');
 const signupbtn=document.getElementById('signupbtn');
 const auth=firebase.auth();
 
-var state=-1;     //state=1 for login, state=2 for signup
+var state=-1;     //state=2 for signup
 
 var emailID,Password;
-loginbtn.addEventListener('click',event=>{
-    state=1;
+loginbtn.addEventListener('click',(e)=>{
+    e.preventDefault();
+    window.location.href="./login.html";
+})
+signupbtn.addEventListener('click',event=>{
+    state=2;
     event.preventDefault();
+    const username=document.getElementById('nickname').value;
+    if(username.trim()=='')     //if username has not been entered, do not sign up
+    {
+        document.getElementById('errormessage').innerHTML="You need to enter a name first.";
+        $("#myModal").modal('show');
+        return;
+    }
     emailID=email.value;
     Password=password.value;
-    console.log('login');
-    const promise=auth.signInWithEmailAndPassword(emailID,Password)
+    console.log('signing in');
+    const promise=auth.createUserWithEmailAndPassword(emailID,Password).then(e=>{console.log(e.message)})
     .catch(e=>{
         document.getElementById('errormessage').innerHTML=e.message;
         $("#myModal").modal('show');
         //console.log(e.message)
-    });
-});
-signupbtn.addEventListener('click',event=>{
-    state=2;
-    event.preventDefault();
-    window.location.href="./signup.html";
+        });
 });
 
 auth.onAuthStateChanged(firebaseUser=>{
     if(firebaseUser){
         console.log("logged in");     
         //console.log(firebaseUser);
-        goToIndex();                                                        
+        let userInfo=[emailID,Password];
+        registerUser();                                                
     }
     else{
         console.log("not logged in");
@@ -53,6 +60,14 @@ auth.onAuthStateChanged(firebaseUser=>{
 });
 function logoutUser(){
     auth.signOut();
+}
+function registerUser(){  
+    const uid=firebase.auth().currentUser.uid;
+    const username=document.getElementById('nickname').value;
+    const db=firebase.firestore();
+    db.collection('users').doc(uid).set({name: username })
+    .then(()=>goToIndex())
+    .catch((e)=>{console.log(e)});    
 }
 function goToIndex(){
     if(state==-1)return;
