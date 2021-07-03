@@ -1,4 +1,4 @@
-  // Your web app's Firebase configuration
+// Your web app's Firebase configuration
   // For Firebase JS SDK v7.20.0 and later, measurementId is optional
   var firebaseConfig = {
     apiKey: "AIzaSyCm27xJOmzApVjEbQYSZISg1RbWaumAp7g",
@@ -108,6 +108,7 @@ let remoteStream = null;
 let roomId = null;
 let dataChannel=null;
 let caller=1;   //if you are the caller then caller=1, if you are the callee then caller =0
+let remoteUsername=null;
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -134,6 +135,7 @@ async function createRoom() {
   localStream.getTracks().forEach(track => {
     peerConnection.addTrack(track, localStream);
   });
+  addVideoLabel("localVideoDiv","You");
 
   // Code for collecting ICE candidates below
   const callerCandidatesCollection = roomRef.collection('callerCandidates');  
@@ -156,6 +158,9 @@ async function createRoom() {
     'offer': {
       type: offer.type,
       sdp: offer.sdp,
+    },
+    'offer_UID':{     //put the current user's UID into firebase, so that callee can access it's username and photo
+      uid: firebase.auth().currentUser.uid,
     },
   };
   await roomRef.set(roomWithOffer);
@@ -184,6 +189,8 @@ async function createRoom() {
       console.log('Got remote description: ', data.answer);
       const rtcSessionDescription = new RTCSessionDescription(data.answer);
       await peerConnection.setRemoteDescription(rtcSessionDescription);
+      const remote_UID=data.answer_UID.uid;
+      setRemoteLabel(remote_UID);
     }   
   });
   // Listening for remote session description above
@@ -219,6 +226,7 @@ async function joinRoomById(roomId) {
   console.log('Got room:', roomSnapshot.exists);
 
   if (roomSnapshot.exists) {
+    addVideoLabel("localVideoDiv","You");
     document.querySelector('#createBtn').disabled = true;
     document.querySelector('#joinBtn').disabled = true;
     document.querySelector(
@@ -262,6 +270,8 @@ async function joinRoomById(roomId) {
 
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
+    const remote_UID=roomSnapshot.data().offer_UID.uid;
+    setRemoteLabel(remote_UID);
     console.log('Got offer:', offer);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
@@ -272,6 +282,9 @@ async function joinRoomById(roomId) {
       answer: {
         type: answer.type,
         sdp: answer.sdp,
+      },
+      answer_UID:{
+        uid: firebase.auth().currentUser.uid,
       },
     };
     await roomRef.update(roomWithAnswer);
@@ -380,7 +393,7 @@ function addEventListenerDC(){
     const myChatMsg=document.createElement('div');
     myChatMsg.classList.add('chat-message');
     const myName=document.createElement('h5');
-    myName.textContent="XYZ";
+    myName.textContent=remoteUsername;
     const myMsg=document.createElement('p');
     myMsg.textContent=message;
     myChatMsg.appendChild(myName);
@@ -446,6 +459,31 @@ function sendMessage(){
 
   }
     
+}
+
+//function for adding labels to video elements
+function addVideoLabel(videoDivID,label){
+  const videoEl=document.getElementById(videoDivID);
+  const div = document.createElement('div');
+  div.classList.add('videoLabels');  
+  div.innerHTML = label.trim();
+  videoEl.appendChild(div);
+}
+
+//function to retrieve username of remote user from firebase and use it as label
+function setRemoteLabel(remote_UID){
+  const db=firebase.firestore();
+  const docRef=db.collection('users').doc(remote_UID);     
+  docRef.get().then((doc) => {
+    if (doc.exists) {
+        remoteUsername=doc.data().name;
+        addVideoLabel('remoteVideoDiv',remoteUsername);
+    } else {
+        console.log("No nickname given!");
+    }
+    }).catch((error) => {
+        console.log("Error getting document:", error);
+    });
 }
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();

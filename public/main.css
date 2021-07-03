@@ -22,6 +22,15 @@ button {
 #videoBtn:hover,#micBtn:hover{
     background-color:#019b7a;
 }
+.video-name {
+    justify-content: end;
+    position:absolute;
+    display: block;
+    left: 0;
+    z-index:1;
+    color: red;
+    background-color: orange;
+}
 #hangupBtn{
     background-color:rgb(180, 13, 13);
 }
@@ -39,6 +48,17 @@ div#videos {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
+}
+.videoLabels{
+    width: inline;
+    min-width: 100px; 
+    height: inline; 
+    color: white; 
+    z-index: 1; 
+    position: absolute; 
+    top:32px; left: 66px; 
+    background: rgb(55, 121, 196); 
+    padding:2px;
 }
 video {
     background: black;
