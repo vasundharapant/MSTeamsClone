@@ -15,6 +15,8 @@
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script> 
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-firestore.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.7.0/firebase-storage.js"></script>
+
     <link rel="stylesheet" type="text/css" href="login.css">
 
     <!--Font - Merriweather-->
@@ -34,12 +36,16 @@
         </a>            
     </div>
 </nav>       
-    <h1 class="pt-5"><b>Sign Up for MS Teams Clone!</b></h1>
+    <h1 class="pt-3"><b>Sign Up for MS Teams Clone!</b></h1>
     <h2 class="mb-4">Fill the below information to make your account:</h2>
     <div class="inputForm" >
         <div class="mb-3">
             <label for="nickname" class="form-label"><b>Name:</b></label>
             <input id="nickname" type="text" class="form-control" placeholder="your name">  
+        </div>
+        <div class="mb-3">
+          <label for="img_user" class="form-label"><b>Set up Profile Picture:</b>(optional)</label>
+          <input type="file" class="form-control" id="img_user" name="img" accept="image/*" onchange="changeImage(event)">
         </div>
         <div class="mb-3">           
             <label for="InputEmail1" class="form-label"><b>Email address:</b></label>

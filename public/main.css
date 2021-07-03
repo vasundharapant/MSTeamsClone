@@ -22,14 +22,11 @@ button {
 #videoBtn:hover,#micBtn:hover{
     background-color:#019b7a;
 }
-.video-name {
-    justify-content: end;
-    position:absolute;
-    display: block;
-    left: 0;
-    z-index:1;
-    color: red;
-    background-color: orange;
+#userImg{
+    width: 130px;
+    height: 130px;
+    object-fit: cover;
+    border-radius: 70px;
 }
 #hangupBtn{
     background-color:rgb(180, 13, 13);
@@ -57,7 +54,7 @@ div#videos {
     z-index: 1; 
     position: absolute; 
     top:32px; left: 66px; 
-    background: rgb(55, 121, 196); 
+    background: rgb(139, 48, 201); 
     padding:2px;
 }
 video {

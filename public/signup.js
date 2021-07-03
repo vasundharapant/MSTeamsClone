@@ -17,6 +17,7 @@ const password=document.getElementById('InputPassword1');
 const loginbtn=document.getElementById('loginbtn');
 const signupbtn=document.getElementById('signupbtn');
 const auth=firebase.auth();
+let userImg=null;     //variable to store user image
 
 var state=-1;     //state=2 for signup
 
@@ -61,9 +62,21 @@ auth.onAuthStateChanged(firebaseUser=>{
 function logoutUser(){
     auth.signOut();
 }
+function changeImage(event){    //event listener for image upload
+    userImg=event.target.files[0];    
+}
 function registerUser(){  
     const uid=firebase.auth().currentUser.uid;
-    const username=document.getElementById('nickname').value;
+    const username=document.getElementById('nickname').value;    
+
+    //firebase storage for uploading photo
+    if(userImg)
+    {
+        var storageRef = firebase.storage().ref('images/'+uid);   
+        storageRef.put(userImg);
+    }     
+    
+    //storing username in database
     const db=firebase.firestore();
     db.collection('users').doc(uid).set({name: username })
     .then(()=>goToIndex())

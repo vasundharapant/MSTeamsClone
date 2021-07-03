@@ -12,37 +12,54 @@
   // Initialize Firebase
   firebase.initializeApp(firebaseConfig);
 
-  function logoutPage(){
-    console.log('in logout function');    
-    firebase.auth().signOut();
-    window.location.href="./login.html";
-  } 
-  function getUser(){
-    let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
-    if(!userInfo)
-      window.location.href="./login.html";   
-    firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
-    .then(async e=>{
-      console.log("logged in");
-      const db=firebase.firestore();
-      const uid=firebase.auth().currentUser.uid;
-      const docRef=db.collection('users').doc(uid);     
-      docRef.get().then((doc) => {
-        if (doc.exists) {
-            //console.log("name:"+ doc.data().name);
-            document.getElementById('welcomeText').innerHTML=`Hey ${doc.data().name}! Welcome to MS Teams Clone!`;
-        } else {
-            // doc.data() will be undefined in this case
-            document.getElementById('welcomeText').innerHTML=`Hey there! Welcome to MS Teams Clone!`;
-            console.log("No nickname given!");
-        }
-        }).catch((error) => {
-            console.log("Error getting document:", error);
-        });
+function logoutPage(){
+  console.log('in logout function');    
+  firebase.auth().signOut();
+  window.location.href="./login.html";
+} 
+
+let imgURL=null;
+
+function getUser(){
+  let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
+  if(!userInfo)
+    window.location.href="./login.html";   
+  firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
+  .then(async e=>{
+    console.log("logged in");
+    const db=firebase.firestore();
+    const uid=firebase.auth().currentUser.uid;
+    const docRef=db.collection('users').doc(uid);     
+    docRef.get().then((doc) => {
+      if (doc.exists) {
+          //console.log("name:"+ doc.data().name);
+          document.getElementById('welcomeText').innerHTML=`Hey ${doc.data().name}! Welcome to MS Teams Clone!`;
+      } else {
+          // doc.data() will be undefined in this case
+          document.getElementById('welcomeText').innerHTML=`Hey there! Welcome to MS Teams Clone!`;
+          console.log("No nickname given!");
+      }
+      }).catch((error) => {
+          console.log("Error getting document:", error);
+      });
       
-    });
-    
-  }
+      //getting user image from firebase storage
+      var storageRef = firebase.storage().ref('images/'+uid).getDownloadURL()
+      .then((url)=>{
+        var img = document.getElementById('userImg');
+        imgURL=url;
+        img.setAttribute('src', url);
+      })
+      .catch(e=>{
+        console.log("no image found");
+        const img=document.getElementById('userImg');
+        document.getElementById('imgDiv').removeChild(img);
+      });
+
+  })
+  .catch(e=>{console.log(e)});
+  
+}
 //function which calls backend to send meet ID through mail
   function sendmail(){
     const data={receiver: document.getElementById('receiverEmail').value,
@@ -109,6 +126,8 @@ let roomId = null;
 let dataChannel=null;
 let caller=1;   //if you are the caller then caller=1, if you are the callee then caller =0
 let remoteUsername=null;
+let remote_UID=null;
+let remoteImgURL=null;
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -135,7 +154,7 @@ async function createRoom() {
   localStream.getTracks().forEach(track => {
     peerConnection.addTrack(track, localStream);
   });
-  addVideoLabel("localVideoDiv","You");
+  addVideoLabel("localVideoDiv","You",'localVideoLabel');
 
   // Code for collecting ICE candidates below
   const callerCandidatesCollection = roomRef.collection('callerCandidates');  
@@ -189,8 +208,9 @@ async function createRoom() {
       console.log('Got remote description: ', data.answer);
       const rtcSessionDescription = new RTCSessionDescription(data.answer);
       await peerConnection.setRemoteDescription(rtcSessionDescription);
-      const remote_UID=data.answer_UID.uid;
-      setRemoteLabel(remote_UID);
+      remote_UID=data.answer_UID.uid;
+      setRemoteUserImg();
+      setRemoteLabel();
     }   
   });
   // Listening for remote session description above
@@ -226,7 +246,7 @@ async function joinRoomById(roomId) {
   console.log('Got room:', roomSnapshot.exists);
 
   if (roomSnapshot.exists) {
-    addVideoLabel("localVideoDiv","You");
+    addVideoLabel("localVideoDiv","You",'localVideoLabel');
     document.querySelector('#createBtn').disabled = true;
     document.querySelector('#joinBtn').disabled = true;
     document.querySelector(
@@ -270,8 +290,9 @@ async function joinRoomById(roomId) {
 
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
-    const remote_UID=roomSnapshot.data().offer_UID.uid;
-    setRemoteLabel(remote_UID);
+    remote_UID=roomSnapshot.data().offer_UID.uid;
+    setRemoteUserImg();
+    setRemoteLabel();
     console.log('Got offer:', offer);
     await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
     const answer = await peerConnection.createAnswer();
@@ -385,13 +406,17 @@ function addEventListenerDC(){
     const myImgDiv=document.createElement('div');
     myImgDiv.classList.add('chat-img');
     const myImg=document.createElement('img');
-    myImg.src="https://bootdey.com/img/Content/avatar/avatar1.png";
+    if(remoteImgURL)
+      myImg.setAttribute('src',remoteImgURL);
+    else      
+      myImg.src="https://bootdey.com/img/Content/avatar/avatar1.png";
+    myImg.style.width="48px";myImg.style.height="48px";
     myImg.alt="Avtar";
     myImgDiv.appendChild(myImg);
     const myChatDiv=document.createElement('div');
     myChatDiv.classList.add('chat-body');
     const myChatMsg=document.createElement('div');
-    myChatMsg.classList.add('chat-message');
+    myChatMsg.classList.add('chat-message','mt-1','mb-1');
     const myName=document.createElement('h5');
     myName.textContent=remoteUsername;
     const myMsg=document.createElement('p');
@@ -406,7 +431,10 @@ function addEventListenerDC(){
     if(document.getElementById('chatBox').style.display=="none")
     {
      /*  <span class="badge badge-pill badge-primary" style="float:right;margin-bottom:-10px;">!</span>  */
-      const notif=document.createElement('span');
+      let notif=document.getElementById('chatNotif');
+      if(notif)
+        return;
+      notif=document.createElement('span');
       notif.setAttribute('id','chatNotif');
       notif.classList.add('badge','badge-pill','badge-primary');
       notif.style.background="#24a0ed";notif.style.margin="auto";
@@ -417,12 +445,14 @@ function addEventListenerDC(){
 }
 //adding event listener for pressing enter key in chat box
 document.getElementById('myMsg').addEventListener('keydown',(e)=>{  
-  if(e.key=='Enter' && dataChannel)
+  if(e.key=='Enter' && dataChannel && dataChannel.readyState=="open")
   {
     sendMessage();
   }
   else if(e.key=='Enter')
   {
+    document.getElementById('myMsg').value='';
+    console.log('No data channel exists');
     document.getElementById('errormessage').innerHTML="You need to be on a call to send a message";
       $('#myErrorModal').modal('show');
   }
@@ -440,13 +470,17 @@ function sendMessage(){
     const myImgDiv=document.createElement('div');
     myImgDiv.classList.add('chat-img');
     const myImg=document.createElement('img');
-    myImg.src="https://bootdey.com/img/Content/avatar/avatar6.png";
+    if(imgURL)
+      myImg.setAttribute('src',imgURL);
+    else  
+      myImg.src="https://bootdey.com/img/Content/avatar/avatar7.png";
+    myImg.style.width="48px";myImg.style.height="48px";
     myImg.alt="Avtar";
     myImgDiv.appendChild(myImg);
     const myChatDiv=document.createElement('div');
     myChatDiv.classList.add('chat-body');
     const myChatMsg=document.createElement('div');
-    myChatMsg.classList.add('chat-message');
+    myChatMsg.classList.add('chat-message','mt-1','mb-1');
     const myName=document.createElement('h5');
     myName.textContent="You";
     const myMsg=document.createElement('p');
@@ -462,28 +496,41 @@ function sendMessage(){
 }
 
 //function for adding labels to video elements
-function addVideoLabel(videoDivID,label){
+function addVideoLabel(videoDivID,label,id){
   const videoEl=document.getElementById(videoDivID);
   const div = document.createElement('div');
-  div.classList.add('videoLabels');  
+  div.classList.add('videoLabels'); 
+  div.setAttribute('id',id); 
   div.innerHTML = label.trim();
   videoEl.appendChild(div);
 }
 
 //function to retrieve username of remote user from firebase and use it as label
-function setRemoteLabel(remote_UID){
+function setRemoteLabel(){
   const db=firebase.firestore();
+  console.log(firebase.auth().currentUser.uid);
+  console.log(remote_UID);
   const docRef=db.collection('users').doc(remote_UID);     
   docRef.get().then((doc) => {
     if (doc.exists) {
         remoteUsername=doc.data().name;
-        addVideoLabel('remoteVideoDiv',remoteUsername);
+        addVideoLabel('remoteVideoDiv',remoteUsername,'remoteVideoLabel');
     } else {
         console.log("No nickname given!");
     }
     }).catch((error) => {
         console.log("Error getting document:", error);
     });
+}
+function setRemoteUserImg(){
+  //getting remote user image from firebase storage
+  var storageRef = firebase.storage().ref('images/'+remote_UID).getDownloadURL()
+  .then((url)=>{    
+    remoteImgURL=url;
+  })
+  .catch(e=>{
+    console.log("no remote image found");
+  });
 }
 async function hangUp(e) {
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
@@ -494,6 +541,11 @@ async function hangUp(e) {
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
+  const localLabel=document.getElementById('localVideoLabel');
+  document.getElementById('localVideoDiv').removeChild(localLabel);
+  const remoteLabel=document.getElementById('remoteVideoLabel');
+  if(remoteLabel)
+    document.getElementById('remoteVideoDiv').removeChild(remoteLabel);
   if(dataChannel)
     dataChannel.close();
 
@@ -519,22 +571,24 @@ async function hangUp(e) {
   if (roomId) {
     const db = firebase.firestore();
     const roomRef = db.collection('rooms').doc(roomId);
-    const calleeCandidates = await roomRef.collection('calleeCandidates').get();
-    calleeCandidates.forEach(async candidate => {
-      await candidate.ref.delete();
-    });
-    await roomRef.update({ answer: firebase.firestore.FieldValue.delete() });    
+    const roomSnapshot = await roomRef.get();
+    if(roomSnapshot.exists)
+    {
+      const calleeCandidates = await roomRef.collection('calleeCandidates').get();
+      calleeCandidates.forEach(async candidate => {
+        await candidate.ref.delete();
+      });
+      await roomRef.update({ answer: firebase.firestore.FieldValue.delete() });    
 
-    const callerCandidates = await roomRef.collection('callerCandidates').get();
-    callerCandidates.forEach(async candidate => {
-      await candidate.ref.delete();
-    });
+      const callerCandidates = await roomRef.collection('callerCandidates').get();
+      callerCandidates.forEach(async candidate => {
+        await candidate.ref.delete();
+      });
+    }    
     await roomRef.delete();
     
     
   }
-
-  document.location.reload(true);
 }
 
 function registerPeerConnectionListeners() {
@@ -548,6 +602,7 @@ function registerPeerConnectionListeners() {
     if(peerConnection.connectionState=='failed')
     {
       document.getElementById('errormessage').textContent="It seems that the connection was lost from the other end.";
+      console.log('showmodal');
       $('myErrorModal').modal('show');
       hangUp();
     }
