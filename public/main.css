@@ -23,8 +23,8 @@ button {
     background-color:#019b7a;
 }
 #userImg{
-    width: 130px;
-    height: 130px;
+    width: 145px;
+    height: 145px;
     object-fit: cover;
     border-radius: 70px;
 }
@@ -144,7 +144,7 @@ hr.light{
     -webkit-border-radius: 50px;
     -moz-border-radius: 50px;
     border-radius: 50px;
-    background: #5a99ee;
+    background: #d85ed8;
     display: inline-block;
     padding: 10px 20px;
     position: relative;
@@ -180,7 +180,7 @@ hr.light{
 .chat-list .in .chat-message:before {
     left: -12px;
     border-bottom: 20px solid transparent;
-    border-right: 20px solid #5a99ee;
+    border-right: 20px solid #d85ed8;
 }
 
 .chat-list .out .chat-img {

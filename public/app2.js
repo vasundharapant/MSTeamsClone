@@ -19,17 +19,19 @@ function logoutPage(){
 } 
 
 let imgURL=null;
-
+let curr_uid=null;    //stores UID of current user
+let uid;
 function getUser(){
   let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
   if(!userInfo)
-    window.location.href="./login.html";   
+    window.location.href="./login.html";  
+
+  curr_uid=userInfo[2]; 
   firebase.auth().signInWithEmailAndPassword(userInfo[0],userInfo[1])
   .then(async e=>{
     console.log("logged in");
-    const db=firebase.firestore();
-    const uid=firebase.auth().currentUser.uid;
-    const docRef=db.collection('users').doc(uid);     
+    const db=firebase.firestore();    
+    const docRef=db.collection('users').doc(curr_uid);     
     docRef.get().then((doc) => {
       if (doc.exists) {
           //console.log("name:"+ doc.data().name);
@@ -44,7 +46,7 @@ function getUser(){
       });
       
       //getting user image from firebase storage
-      var storageRef = firebase.storage().ref('images/'+uid).getDownloadURL()
+      var storageRef = firebase.storage().ref('images/'+curr_uid).getDownloadURL()
       .then((url)=>{
         var img = document.getElementById('userImg');
         imgURL=url;
@@ -179,7 +181,7 @@ async function createRoom() {
       sdp: offer.sdp,
     },
     'offer_UID':{     //put the current user's UID into firebase, so that callee can access it's username and photo
-      uid: firebase.auth().currentUser.uid,
+      uid: curr_uid,
     },
   };
   await roomRef.set(roomWithOffer);
@@ -305,7 +307,7 @@ async function joinRoomById(roomId) {
         sdp: answer.sdp,
       },
       answer_UID:{
-        uid: firebase.auth().currentUser.uid,
+        uid: curr_uid,
       },
     };
     await roomRef.update(roomWithAnswer);
@@ -508,7 +510,7 @@ function addVideoLabel(videoDivID,label,id){
 //function to retrieve username of remote user from firebase and use it as label
 function setRemoteLabel(){
   const db=firebase.firestore();
-  console.log(firebase.auth().currentUser.uid);
+  //console.log(firebase.auth().currentUser.uid);
   console.log(remote_UID);
   const docRef=db.collection('users').doc(remote_UID);     
   docRef.get().then((doc) => {

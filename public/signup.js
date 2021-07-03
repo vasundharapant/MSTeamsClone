@@ -22,6 +22,8 @@ let userImg=null;     //variable to store user image
 var state=-1;     //state=2 for signup
 
 var emailID,Password;
+var uid=null;           //stores Unique ID of firebase user
+
 loginbtn.addEventListener('click',(e)=>{
     e.preventDefault();
     window.location.href="./login.html";
@@ -66,7 +68,7 @@ function changeImage(event){    //event listener for image upload
     userImg=event.target.files[0];    
 }
 function registerUser(){  
-    const uid=firebase.auth().currentUser.uid;
+    uid=firebase.auth().currentUser.uid;
     const username=document.getElementById('nickname').value;    
 
     //firebase storage for uploading photo
@@ -84,7 +86,7 @@ function registerUser(){
 }
 function goToIndex(){
     if(state==-1)return;
-    let userInfo=[emailID,Password];
+    let userInfo=[emailID,Password,uid];
     sessionStorage.setItem('userInfo',JSON.stringify(userInfo)); 
     state=-1;  
     window.location.href="./index.html";              

@@ -20,7 +20,7 @@ const auth=firebase.auth();
 
 var state=-1;     //state=1 for login, state=2 for signup
 
-var emailID,Password;
+var emailID,Password,uid;
 loginbtn.addEventListener('click',event=>{
     state=1;
     event.preventDefault();
@@ -44,6 +44,7 @@ auth.onAuthStateChanged(firebaseUser=>{
     if(firebaseUser){
         console.log("logged in");     
         //console.log(firebaseUser);
+        uid=firebaseUser.uid;
         goToIndex();                                                        
     }
     else{
@@ -56,7 +57,7 @@ function logoutUser(){
 }
 function goToIndex(){
     if(state==-1)return;
-    let userInfo=[emailID,Password];
+    let userInfo=[emailID,Password,uid];
     sessionStorage.setItem('userInfo',JSON.stringify(userInfo)); 
     state=-1;  
     window.location.href="./index.html";              
