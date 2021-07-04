@@ -26,7 +26,7 @@ button {
     width: 145px;
     height: 145px;
     object-fit: cover;
-    border-radius: 70px;
+    border-radius: 75px;
 }
 #hangupBtn{
     background-color:rgb(180, 13, 13);

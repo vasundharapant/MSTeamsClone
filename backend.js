@@ -25,8 +25,10 @@ app.post('/sendmail',async (req,res)=>{
     const output=`
         <h2>You have been invited to a meeting on MS Teams Clone WebApp!</h2>
         <p>Your meeting ID is:<b> ${meetID}</b> </p>
+        <p> I hope you enjoy my app. See you there!</p>
         <br>
-        <p> We hope you enjoy our app. See you there!</p>
+        <p>Regards,</p>
+        <p>Vasundhara Pant</p>
         `;
     
     let transporter = nodemailer.createTransport({

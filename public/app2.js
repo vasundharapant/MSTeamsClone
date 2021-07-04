@@ -123,13 +123,17 @@ const configuration = {
 
 let peerConnection = null;
 let localStream = null;
+let displayLocalStream=null;    //stream for screen sharing of local user
 let remoteStream = null;
+let displayRemoteStream=null;    //stream for screen sharing of remote user
 let roomId = null;
 let dataChannel=null;
 let caller=1;   //if you are the caller then caller=1, if you are the callee then caller =0
 let remoteUsername=null;
 let remote_UID=null;
 let remoteImgURL=null;
+let senders=[];
+let sharing=0;    //sharing=1 when screen is being presented, else sharing=0
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
@@ -154,7 +158,7 @@ async function createRoom() {
   registerPeerConnectionListeners();
 
   localStream.getTracks().forEach(track => {
-    peerConnection.addTrack(track, localStream);
+    senders.push(peerConnection.addTrack(track, localStream));
   });
   addVideoLabel("localVideoDiv","You",'localVideoLabel');
 
@@ -195,10 +199,10 @@ async function createRoom() {
     $("#sendMailModal").modal('show');    
   },1000);
   peerConnection.addEventListener('track', event => {
-    console.log('Got remote track:', event.streams[0]);
-    event.streams[0].getTracks().forEach(track => {
-      console.log('Add a track to the remoteStream:', track);
-      remoteStream.addTrack(track);
+    console.log('Got remote track:', event.streams[0]);    
+    event.streams[0].getTracks().forEach(track => {         
+        console.log('Add a track to the remoteStream:', track);
+        remoteStream.addTrack(track);      
     });
   });
 
@@ -213,6 +217,7 @@ async function createRoom() {
       remote_UID=data.answer_UID.uid;
       setRemoteUserImg();
       setRemoteLabel();
+      document.getElementById('screenBtn').style.visibility="visible";
     }   
   });
   // Listening for remote session description above
@@ -267,9 +272,8 @@ async function joinRoomById(roomId) {
 
     registerPeerConnectionListeners();
     localStream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, localStream);
+      senders.push(peerConnection.addTrack(track, localStream));
     });
-
     // Code for collecting ICE candidates below
     const calleeCandidatesCollection = roomRef.collection('calleeCandidates');
     peerConnection.addEventListener('icecandidate', event => {
@@ -283,16 +287,17 @@ async function joinRoomById(roomId) {
     // Code for collecting ICE candidates above
 
     peerConnection.addEventListener('track', event => {
-      console.log('Got remote track:', event.streams[0]);
+      console.log('Got remote track:', event.streams[0]);    
       event.streams[0].getTracks().forEach(track => {
         console.log('Add a track to the remoteStream:', track);
-        remoteStream.addTrack(track);
+        remoteStream.addTrack(track); 
       });
     });
 
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
     remote_UID=roomSnapshot.data().offer_UID.uid;
+    document.getElementById('screenBtn').style.visibility="visible";
     setRemoteUserImg();
     setRemoteLabel();
     console.log('Got offer:', offer);
@@ -354,7 +359,47 @@ async function openUserMedia(e) {
   displayMeetButtons();
 }
 
-function displayMeetButtons(){
+async function openUserScreen() {  
+  const screenConstraints={
+        video: {
+            cursor: 'always' | 'motion' | 'never',
+            displaySurface: 'application' | 'browser' | 'monitor' | 'window'
+        }
+    } 
+  
+  if (!displayLocalStream) {
+    try{
+      displayLocalStream = await navigator.mediaDevices.getDisplayMedia(screenConstraints);
+      senders.find(sender => sender.track.kind === 'video').replaceTrack(displayLocalStream.getTracks()[0]);
+  
+      //set the local video as that of your screen
+      document.getElementById('localVideo').srcObject = displayLocalStream;
+      //change icon
+      document.getElementById('screenIcon').classList.remove( 'fa-share-square');
+      document.getElementById('screenIcon').classList.add('fa-stop-circle');
+      sharing=1;
+
+      //add listener for when the user clicks on 'stop sharing' 
+      displayLocalStream.getTracks()[0].onended = function () {
+        stopSharing();
+      };
+    }
+    catch(err){
+      console.log(err);
+    }    
+  }  
+}
+function stopSharing(){
+  senders.find(sender => sender.track.kind === 'video')
+      .replaceTrack(localStream.getTracks().find(track => track.kind === 'video'));
+    document.getElementById('localVideo').srcObject = localStream;
+  displayLocalStream=null;
+  document.getElementById('screenIcon').classList.remove( 'fa-stop-circle');
+  document.getElementById('screenIcon').classList.add('fa-share-square');
+  sharing=0;
+}
+
+function displayMeetButtons(){  
   document.getElementById('hangupBtn').style.visibility="visible";
   document.getElementById('videoBtn').style.visibility="visible";
   document.getElementById('micBtn').style.visibility="visible";
@@ -395,7 +440,12 @@ function toggleVideo() {
     stopVideo.classList.add("fa-video-slash");
   }  
 }
-
+function toggleScreen(){
+  if(sharing)
+    stopSharing();
+  else
+    openUserScreen();
+}
 //function that adds event listener to incoming messages in data channel
 function addEventListenerDC(){      
   dataChannel.addEventListener('message', event => {
@@ -534,12 +584,12 @@ function setRemoteUserImg(){
     console.log("no remote image found");
   });
 }
-async function hangUp(e) {
+async function hangUp(e) {  
   const tracks = document.querySelector('#localVideo').srcObject.getTracks();
   tracks.forEach(track => {
     track.stop();
   });
-
+  senders=[];
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
@@ -563,6 +613,7 @@ async function hangUp(e) {
   document.querySelector('#hangupBtn').disabled = true;
   document.querySelector('#currentRoom').innerText = '';
   document.querySelector('#hangupBtn').style.visibility="hidden";
+  document.querySelector('#screenBtn').style.visibility="hidden";
   document.querySelector('#videoBtn').style.visibility="hidden";
   document.querySelector('#micBtn').style.visibility="hidden";
   document.getElementById('sendMailBtn').style.display="none";
@@ -603,10 +654,14 @@ function registerPeerConnectionListeners() {
     console.log(`Connection state change: ${peerConnection.connectionState}`);
     if(peerConnection.connectionState=='failed')
     {
-      document.getElementById('errormessage').textContent="It seems that the connection was lost from the other end.";
-      console.log('showmodal');
-      $('myErrorModal').modal('show');
+      document.getElementById('errormessage').textContent="The connection failed. The call was probably ended from the other end.";
+      $('#myErrorModal').modal('show');
       hangUp();
+    }
+    if(peerConnection.connectionState=='disconnected')
+    {
+      document.getElementById('errormessage').textContent="The connection was lost from the other end. You may wait for connection to reestablish or end the call.";
+      $('#myErrorModal').modal('show');
     }
       
   });
