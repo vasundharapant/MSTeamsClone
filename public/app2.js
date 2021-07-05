@@ -393,6 +393,7 @@ function stopSharing(){
   senders.find(sender => sender.track.kind === 'video')
       .replaceTrack(localStream.getTracks().find(track => track.kind === 'video'));
     document.getElementById('localVideo').srcObject = localStream;
+  displayLocalStream.getTracks().forEach(track=>track.stop());
   displayLocalStream=null;
   document.getElementById('screenIcon').classList.remove( 'fa-stop-circle');
   document.getElementById('screenIcon').classList.add('fa-share-square');
@@ -585,11 +586,21 @@ function setRemoteUserImg(){
   });
 }
 async function hangUp(e) {  
-  const tracks = document.querySelector('#localVideo').srcObject.getTracks();
+  const tracks = localStream.getTracks();
   tracks.forEach(track => {
     track.stop();
   });
+
+  //changing meet icons
+    stopVideo.classList.remove("fa-video");
+    stopVideo.classList.add("fa-video-slash");
+    muteIcon.classList.remove("fa-microphone-alt");
+    muteIcon.classList.add("fa-microphone-slash");
   senders=[];
+  if(displayLocalStream)
+    displayLocalStream.getTracks().forEach(track=>track.stop());
+  displayLocalStream=null;
+  document.getElementById('localVideo').srcObject=null;
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
