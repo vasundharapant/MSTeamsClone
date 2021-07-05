@@ -4,6 +4,11 @@ body {
     font-family: Roboto, Helvetica, Arial, sans-serif;
     text-align: center;
     font-family: 'Merriweather', serif;
+    background-image: url('./images/bg_index2.png');
+    background-repeat: no-repeat;
+    background-position-x: center;   
+    background-size: cover;
+    background-blend-mode:multiply;
 }
 nav{
     margin-bottom: 1em;
@@ -53,15 +58,15 @@ div#videos {
     color: white; 
     z-index: 1; 
     position: absolute; 
-    top:32px; left: 66px; 
+    top:32px; left: 14%; 
     background: rgb(139, 48, 201); 
     padding:2px;
 }
 video {
     background: black;
     object-fit: cover;
-    width: 40vw;
-    height: 50vh;
+    width: 35vw;
+    height: 40vh;
     display: block;
     margin:auto;
     margin-bottom: 2rem;

@@ -35,7 +35,7 @@ function getUser(){
     docRef.get().then((doc) => {
       if (doc.exists) {
           //console.log("name:"+ doc.data().name);
-          document.getElementById('welcomeText').innerHTML=`Hey ${doc.data().name}! Welcome to MS Teams Clone!`;
+          document.getElementById('welcomeText').innerHTML=`Hey <i>${doc.data().name}</i>! Welcome to MS Teams Clone!`;
       } else {
           // doc.data() will be undefined in this case
           document.getElementById('welcomeText').innerHTML=`Hey there! Welcome to MS Teams Clone!`;
@@ -103,8 +103,8 @@ function toggleChatBox(){
   {
     document.getElementById('chatBox').style.display="none";
     videoDiv.classList.remove('col-sm-6', 'col-md-8', 'col-lg-9');
-    videoElement[0].style.width="40vw";   
-    videoElement[1].style.width="40vw"; 
+    videoElement[0].style.width="35vw";   
+    videoElement[1].style.width="35vw"; 
   }
 }
 
@@ -591,11 +591,6 @@ async function hangUp(e) {
     track.stop();
   });
 
-  //changing meet icons
-    stopVideo.classList.remove("fa-video");
-    stopVideo.classList.add("fa-video-slash");
-    muteIcon.classList.remove("fa-microphone-alt");
-    muteIcon.classList.add("fa-microphone-slash");
   senders=[];
   if(displayLocalStream)
     displayLocalStream.getTracks().forEach(track=>track.stop());
