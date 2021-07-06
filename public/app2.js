@@ -145,6 +145,7 @@ function init() {
 }
 
 async function createRoom() {  
+  caller=1;     //you are the caller
   document.querySelector('#createBtn').disabled = true;
   document.querySelector('#joinBtn').disabled = true;
   const db = firebase.firestore();
@@ -223,6 +224,14 @@ async function createRoom() {
       console.log('Got remote description: ', data.answer);
       const rtcSessionDescription = new RTCSessionDescription(data.answer);
       await peerConnection.setRemoteDescription(rtcSessionDescription);
+      if(convertToVideo)
+      {
+        let new_remote_UID=data.answer_UID.uid;
+        if(new_remote_UID!=remote_UID)    //check if the person joining the call is the same person you earlier were on a chat with
+        {
+          document.getElementById('myChat').innerHTML=''; 
+        }
+      }
       remote_UID=data.answer_UID.uid;
       setRemoteUserImg();
       setRemoteLabel();
@@ -245,15 +254,20 @@ async function createRoom() {
   // Listen for remote ICE candidates above
   
   if(!onlyChat)
-    document.getElementById("hangupBtn").disabled=false;
-  document.getElementById('leaveChatBtn').disabled=false; 
+  {
+    document.getElementById("hangupBtn").disabled=false;    
+  }  
+  if(onlyChat)
+    document.getElementById('leaveChatBtn').disabled=false;   
 }
 async function createChatRoom(){
   onlyChat=1;
+  document.getElementById('convertToVideoBtn').style.display="block";
   createRoom();
 }
 function joinChatRoom(){
   onlyChat=1;
+  document.getElementById('joinVideoBtn').style.display="block";
   joinRoom();
 }
 
@@ -274,6 +288,11 @@ async function joinRoomById(roomId) {
   console.log('Got room:', roomSnapshot.exists);
 
   if (roomSnapshot.exists) { 
+    if(onlyChat==0)
+    {
+      document.getElementById('joinVideoBtn').style.display="none";
+      document.getElementById('leaveChatBtn').style.display="none";
+    }      
     document.querySelector('#createBtn').disabled = true;
     document.querySelector('#joinBtn').disabled = true;
     document.querySelector(
@@ -323,6 +342,14 @@ async function joinRoomById(roomId) {
 
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
+    if(convertToVideo)
+      {
+        let new_remote_UID=roomSnapshot.data().offer_UID.uid;
+        if(new_remote_UID!=remote_UID)    //check if the caller is the same person you earlier were on a chat with
+        {
+          document.getElementById('myChat').innerHTML=''; 
+        }
+      }
     remote_UID=roomSnapshot.data().offer_UID.uid;
     if(!onlyChat)
       document.getElementById('screenBtn').style.visibility="visible";
@@ -359,6 +386,7 @@ async function joinRoomById(roomId) {
     // Listening for remote ICE candidates above
     if(!onlyChat)
       document.getElementById("hangupBtn").disabled=false;
+    if(onlyChat)
       document.getElementById('leaveChatBtn').disabled=false;    
   } 
   else{       //if room does not exist
@@ -368,6 +396,8 @@ async function joinRoomById(roomId) {
         '#currentRoom').style.color="red";
   }
 }
+
+//function to convert from chat to video call 
 async function joinVideoCall(){
   if(!localStream)
   {
@@ -380,13 +410,13 @@ async function joinVideoCall(){
     $('#myErrorModal').modal('show');
   }
   else{
-    onlyChat=0;
+    onlyChat=0;    
     $('#joinModal').modal('show');
     joinRoom();
   }
 } 
 async function convertToVideoCall(){
-  if(!localStream)
+  if(document.getElementById('cameraBtn').disabled==false)
   {
     document.getElementById('errormessage').innerHTML='You need to give access to your media first to convert to video call';
     $('#myErrorModal').modal('show');
@@ -417,6 +447,8 @@ async function convertToVideoCall(){
       }
     leaveChat();
     onlyChat=0;
+    document.getElementById('convertToVideoBtn').style.display="none";
+    document.getElementById('leaveChatBtn').style.display="none";
     createRoom();
   } 
 }
@@ -434,8 +466,11 @@ async function openUserMedia(e) {
 
   console.log('Stream:', document.querySelector('#localVideo').srcObject);
   document.querySelector('#cameraBtn').disabled = true;
-  document.querySelector('#joinBtn').disabled = false;
-  document.querySelector('#createBtn').disabled = false;
+  if(!convertToVideo && !dataChannel)
+  {
+    document.querySelector('#joinBtn').disabled = false;
+    document.querySelector('#createBtn').disabled = false;
+  }  
   //document.querySelector('#hangupBtn').disabled = false;
   document.getElementById("introMsg").innerText="";
   displayMeetButtons();
@@ -665,6 +700,7 @@ function setRemoteUserImg(){
     remoteImgURL=url;
   })
   .catch(e=>{
+    remoteImgURL=null;
     console.log("no remote image found");
   });
 }
@@ -691,18 +727,14 @@ async function hangUp(e) {
   document.querySelector('#localVideo').srcObject = null;
   document.querySelector('#remoteVideo').srcObject = null;
   document.querySelector('#cameraBtn').disabled=false;
-  document.querySelector('#joinBtn').disabled = true;
-  document.querySelector('#createBtn').disabled = true;
-  document.querySelector('#hangupBtn').disabled = true;  
+  document.querySelector('#joinBtn').disabled = true;  
   document.querySelector('#hangupBtn').style.visibility="hidden";
   document.querySelector('#screenBtn').style.visibility="hidden";
   document.querySelector('#videoBtn').style.visibility="hidden";
   document.querySelector('#micBtn').style.visibility="hidden";  
-  if(!dataChannel)
-  {
-    document.querySelector('#currentRoom').innerText = '';
-    document.getElementById('sendMailBtn').style.display="none";
-  }
+  
+  if(dataChannel)
+    document.getElementById('leaveChatBtn').style.display="block";
 
   // Delete caller/callee candidates from room on hangup  
   if (roomId) {
@@ -726,6 +758,7 @@ async function hangUp(e) {
     
     
   }
+  onlyChat=1;
 }
 function leaveChatUser()
 {
@@ -736,7 +769,7 @@ function leaveChat(){
   if(dataChannel)
     dataChannel.close();
 
-  if (peerConnection && onlyChat) {
+  if (peerConnection) {
     peerConnection.close();
     document.querySelector('#cameraBtn').disabled = false;
   }
@@ -744,11 +777,16 @@ function leaveChat(){
   {
     document.getElementById('sendMsgBtn').disabled=true;  
     document.getElementById('myChat').innerHTML='';  
-    document.getElementById('leaveChatBtn').disabled='true';   
+    document.getElementById('leaveChatBtn').style.display="none";     
+    document.getElementById('createBtn').disabled=false;
+    document.getElementById('joinBtn').disabled=false;
+    document.getElementById('convertToVideoBtn').style.display="none";
+    document.getElementById('joinVideoBtn').style.display="none";
   }  
+  
   document.getElementById('currentRoom').innerText='';
   document.getElementById('sendMailBtn').style.display="none";
-
+  
   roomId=null;dataChannel=null;
 }
 
@@ -762,21 +800,25 @@ function registerPeerConnectionListeners() {
     console.log(`Connection state change: ${peerConnection.connectionState}`);
     if(peerConnection.connectionState=='failed')
     {      
-      if(!onlyChat)
+      if(!onlyChat ||(onlyChat && !convertToVideo))
       {
         document.getElementById('errormessage').textContent="The connection failed. The call was probably ended from the other end.";
         $('#myErrorModal').modal('show');
         hangUp();
+      }
+      else if((onlyChat && convertToVideo)|| caller)
+      {        
+        leaveChatUser();
       }      
     }
     if(peerConnection.connectionState=='disconnected')
     {
-      if(onlyChat)
+      if(onlyChat && !convertToVideo && caller==0)
       {
         $('#convertToVideoModal').modal('show');
         hangUp();
         convertToVideo=1;
-        leaveChat();                
+        leaveChat();
       }
       else{
         document.getElementById('errormessage').textContent="The connection was lost from the other end. You may wait for connection to reestablish or end the call.";

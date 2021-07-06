@@ -100,21 +100,23 @@
                 <li><button class="dropdown-item" type="button" onclick="showJoin(this)">Join Chat Room</button></li>
               </ul>
             </div>           
-            <button type="button" class="btn btn-primary" onclick="convertToVideoCall()">
-              Convert To Video
-            </button>    
-            <button type="button" class="btn btn-primary" onclick="joinVideoCall()">
-              Join Video
-            </button>
-            <button type="button" class="btn btn-danger" id="leaveChatBtn" onclick="leaveChatUser()">
-              Leave Chat
-            </button>
-        </div>  
+        </div> 
+        <div id="myChatBtns" class="d-flex align-items-center justify-content-center text-center">
+          <button id="convertToVideoBtn"type="button" class="btn btn-primary" onclick="convertToVideoCall()" style="display: none;">
+            Convert To Video
+          </button>    
+          <button id="joinVideoBtn" type="button" class="btn btn-primary" onclick="joinVideoCall()"  style="display: none;">
+            Join Video
+          </button>
+          <button type="button" class="btn btn-danger" id="leaveChatBtn" onclick="leaveChatUser()"  style="display: none;">
+            Leave Chat
+          </button> 
+        </div> 
 
         <div class="pt-2 pb-2">
             <span id="currentRoom" ></span>
         </div>
-        <button type="button" class="btn btn-primary" id="sendMailBtn" data-bs-toggle="modal" data-bs-target="#sendMailModal" style="display: none;margin: auto;">
+        <button type="button" class="btn btn-success" id="sendMailBtn" data-bs-toggle="modal" data-bs-target="#sendMailModal" style="display: none;margin: auto;">
           Send Email Invite
         </button>
       </div>      
@@ -144,7 +146,7 @@
         <button type="button" onclick="toggleVideo()" class="btn btn-primary meetBtn" id="videoBtn" data-toggle="tooltip" data-placement="top" title="display/hide video">
           <i id="stopVideo" class="fas fa-video-slash"></i>
         </button>
-    </div>  
+    </div>        
   </div>
 
   <!--Chat box-->
