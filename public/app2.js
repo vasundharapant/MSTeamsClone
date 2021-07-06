@@ -108,6 +108,7 @@ function toggleChatBox(){
   }
 }
 
+
 //WebRTC part - for video calling and chatting
 const configuration = {
   iceServers: [
@@ -134,12 +135,13 @@ let remote_UID=null;
 let remoteImgURL=null;
 let senders=[];
 let sharing=0;    //sharing=1 when screen is being presented, else sharing=0
+let onlyChat=0;   //onlyChat=1 when chat room is created, 0 when video room is created
+let convertToVideo=0;   // =1 when call is being converted from chat to video, otherwise =0
+
 
 function init() {
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
   document.querySelector('#hangupBtn').addEventListener('click', hangUp);
-  document.querySelector('#createBtn').addEventListener('click', createRoom);
-  document.querySelector('#joinBtn').addEventListener('click', joinRoom);
 }
 
 async function createRoom() {  
@@ -157,10 +159,13 @@ async function createRoom() {
 
   registerPeerConnectionListeners();
 
-  localStream.getTracks().forEach(track => {
-    senders.push(peerConnection.addTrack(track, localStream));
-  });
-  addVideoLabel("localVideoDiv","You",'localVideoLabel');
+  if(!onlyChat)   //only add video streams in video call, not in chat room
+  {
+    localStream.getTracks().forEach(track => {
+      senders.push(peerConnection.addTrack(track, localStream));
+    });
+    addVideoLabel("localVideoDiv","You",'localVideoLabel');
+  }  
 
   // Code for collecting ICE candidates below
   const callerCandidatesCollection = roomRef.collection('callerCandidates');  
@@ -198,13 +203,17 @@ async function createRoom() {
   setTimeout(()=>{
     $("#sendMailModal").modal('show');    
   },1000);
-  peerConnection.addEventListener('track', event => {
-    console.log('Got remote track:', event.streams[0]);    
-    event.streams[0].getTracks().forEach(track => {         
-        console.log('Add a track to the remoteStream:', track);
-        remoteStream.addTrack(track);      
+
+  if(!onlyChat)   //recieve tracks only during video call, not in chat room
+  {
+    peerConnection.addEventListener('track', event => {
+      console.log('Got remote track:', event.streams[0]);    
+      event.streams[0].getTracks().forEach(track => {         
+          console.log('Add a track to the remoteStream:', track);
+          remoteStream.addTrack(track);      
+      });
     });
-  });
+  }  
 
   // Listening for remote session description below
   roomRef.onSnapshot(async snapshot => {
@@ -217,7 +226,8 @@ async function createRoom() {
       remote_UID=data.answer_UID.uid;
       setRemoteUserImg();
       setRemoteLabel();
-      document.getElementById('screenBtn').style.visibility="visible";
+      if(!onlyChat)
+        document.getElementById('screenBtn').style.visibility="visible";
     }   
   });
   // Listening for remote session description above
@@ -233,7 +243,18 @@ async function createRoom() {
     });
   });
   // Listen for remote ICE candidates above
-  document.getElementById("hangupBtn").disabled=false;  
+  
+  if(!onlyChat)
+    document.getElementById("hangupBtn").disabled=false;
+  document.getElementById('leaveChatBtn').disabled=false; 
+}
+async function createChatRoom(){
+  onlyChat=1;
+  createRoom();
+}
+function joinChatRoom(){
+  onlyChat=1;
+  joinRoom();
 }
 
 function joinRoom() {
@@ -252,8 +273,7 @@ async function joinRoomById(roomId) {
   const roomSnapshot = await roomRef.get();
   console.log('Got room:', roomSnapshot.exists);
 
-  if (roomSnapshot.exists) {
-    addVideoLabel("localVideoDiv","You",'localVideoLabel');
+  if (roomSnapshot.exists) { 
     document.querySelector('#createBtn').disabled = true;
     document.querySelector('#joinBtn').disabled = true;
     document.querySelector(
@@ -271,9 +291,13 @@ async function joinRoomById(roomId) {
     document.getElementById('sendMsgBtn').disabled=false;   //allow sending messages
 
     registerPeerConnectionListeners();
-    localStream.getTracks().forEach(track => {
-      senders.push(peerConnection.addTrack(track, localStream));
-    });
+    if(!onlyChat)
+    {
+      localStream.getTracks().forEach(track => {
+        senders.push(peerConnection.addTrack(track, localStream));
+      });
+      addVideoLabel("localVideoDiv","You",'localVideoLabel');
+    }
     // Code for collecting ICE candidates below
     const calleeCandidatesCollection = roomRef.collection('calleeCandidates');
     peerConnection.addEventListener('icecandidate', event => {
@@ -286,18 +310,22 @@ async function joinRoomById(roomId) {
     });
     // Code for collecting ICE candidates above
 
-    peerConnection.addEventListener('track', event => {
-      console.log('Got remote track:', event.streams[0]);    
-      event.streams[0].getTracks().forEach(track => {
-        console.log('Add a track to the remoteStream:', track);
-        remoteStream.addTrack(track); 
+    if(!onlyChat)
+    {
+      peerConnection.addEventListener('track', event => {
+        console.log('Got remote track:', event.streams[0]);    
+        event.streams[0].getTracks().forEach(track => {
+          console.log('Add a track to the remoteStream:', track);
+          remoteStream.addTrack(track); 
+        });
       });
-    });
+    }
 
     // Code for creating SDP answer below
     const offer = roomSnapshot.data().offer;
     remote_UID=roomSnapshot.data().offer_UID.uid;
-    document.getElementById('screenBtn').style.visibility="visible";
+    if(!onlyChat)
+      document.getElementById('screenBtn').style.visibility="visible";
     setRemoteUserImg();
     setRemoteLabel();
     console.log('Got offer:', offer);
@@ -329,7 +357,9 @@ async function joinRoomById(roomId) {
       });
     });
     // Listening for remote ICE candidates above
-    document.getElementById("hangupBtn").disabled=false;    
+    if(!onlyChat)
+      document.getElementById("hangupBtn").disabled=false;
+      document.getElementById('leaveChatBtn').disabled=false;    
   } 
   else{       //if room does not exist
     document.querySelector(
@@ -337,6 +367,58 @@ async function joinRoomById(roomId) {
     document.querySelector(
         '#currentRoom').style.color="red";
   }
+}
+async function joinVideoCall(){
+  if(!localStream)
+  {
+    document.getElementById('errormessage').innerHTML='You need to give access to your media first to convert to video call';
+    $('#myErrorModal').modal('show');
+  } 
+  else if(dataChannel!=null)
+  {
+    document.getElementById('errormessage').innerHTML='The caller needs to convert the call to video first. Only then you will be able to join.';
+    $('#myErrorModal').modal('show');
+  }
+  else{
+    onlyChat=0;
+    $('#joinModal').modal('show');
+    joinRoom();
+  }
+} 
+async function convertToVideoCall(){
+  if(!localStream)
+  {
+    document.getElementById('errormessage').innerHTML='You need to give access to your media first to convert to video call';
+    $('#myErrorModal').modal('show');
+  } 
+  else{
+    convertToVideo=1;
+      // Delete caller/callee candidates from room on hangup  
+      if (roomId) {
+        const db = firebase.firestore();
+        const roomRef = db.collection('rooms').doc(roomId);
+        const roomSnapshot = await roomRef.get();
+        if(roomSnapshot.exists)
+        {
+          const calleeCandidates = await roomRef.collection('calleeCandidates').get();
+          calleeCandidates.forEach(async candidate => {
+            await candidate.ref.delete();
+          });
+          await roomRef.update({ answer: firebase.firestore.FieldValue.delete() });    
+
+          const callerCandidates = await roomRef.collection('callerCandidates').get();
+          callerCandidates.forEach(async candidate => {
+            await candidate.ref.delete();
+          });
+        }    
+        await roomRef.delete();
+    
+    
+      }
+    leaveChat();
+    onlyChat=0;
+    createRoom();
+  } 
 }
 
 async function openUserMedia(e) {
@@ -567,7 +649,8 @@ function setRemoteLabel(){
   docRef.get().then((doc) => {
     if (doc.exists) {
         remoteUsername=doc.data().name;
-        addVideoLabel('remoteVideoDiv',remoteUsername,'remoteVideoLabel');
+        if(!onlyChat)
+          addVideoLabel('remoteVideoDiv',remoteUsername,'remoteVideoLabel');
     } else {
         console.log("No nickname given!");
     }
@@ -586,45 +669,40 @@ function setRemoteUserImg(){
   });
 }
 async function hangUp(e) {  
-  const tracks = localStream.getTracks();
-  tracks.forEach(track => {
+  if(localStream)
+  localStream.getTracks().forEach(track => {
     track.stop();
   });
-
   senders=[];
   if(displayLocalStream)
     displayLocalStream.getTracks().forEach(track=>track.stop());
   displayLocalStream=null;
-  document.getElementById('localVideo').srcObject=null;
+  
   if (remoteStream) {
     remoteStream.getTracks().forEach(track => track.stop());
   }
   const localLabel=document.getElementById('localVideoLabel');
-  document.getElementById('localVideoDiv').removeChild(localLabel);
+  if(localLabel)
+    document.getElementById('localVideoDiv').removeChild(localLabel);
   const remoteLabel=document.getElementById('remoteVideoLabel');
   if(remoteLabel)
     document.getElementById('remoteVideoDiv').removeChild(remoteLabel);
-  if(dataChannel)
-    dataChannel.close();
-
-  if (peerConnection) {
-    peerConnection.close();
-  }
 
   document.querySelector('#localVideo').srcObject = null;
   document.querySelector('#remoteVideo').srcObject = null;
-  document.querySelector('#cameraBtn').disabled = false;
+  document.querySelector('#cameraBtn').disabled=false;
   document.querySelector('#joinBtn').disabled = true;
   document.querySelector('#createBtn').disabled = true;
-  document.querySelector('#hangupBtn').disabled = true;
-  document.querySelector('#currentRoom').innerText = '';
+  document.querySelector('#hangupBtn').disabled = true;  
   document.querySelector('#hangupBtn').style.visibility="hidden";
   document.querySelector('#screenBtn').style.visibility="hidden";
   document.querySelector('#videoBtn').style.visibility="hidden";
-  document.querySelector('#micBtn').style.visibility="hidden";
-  document.getElementById('sendMailBtn').style.display="none";
-  document.getElementById('sendMsgBtn').disabled=true;  //disable sending messages
-  document.getElementById('myChat').innerHTML='';
+  document.querySelector('#micBtn').style.visibility="hidden";  
+  if(!dataChannel)
+  {
+    document.querySelector('#currentRoom').innerText = '';
+    document.getElementById('sendMailBtn').style.display="none";
+  }
 
   // Delete caller/callee candidates from room on hangup  
   if (roomId) {
@@ -649,6 +727,30 @@ async function hangUp(e) {
     
   }
 }
+function leaveChatUser()
+{
+  convertToVideo=0;
+  leaveChat();
+}
+function leaveChat(){
+  if(dataChannel)
+    dataChannel.close();
+
+  if (peerConnection && onlyChat) {
+    peerConnection.close();
+    document.querySelector('#cameraBtn').disabled = false;
+  }
+  if(!convertToVideo)
+  {
+    document.getElementById('sendMsgBtn').disabled=true;  
+    document.getElementById('myChat').innerHTML='';  
+    document.getElementById('leaveChatBtn').disabled='true';   
+  }  
+  document.getElementById('currentRoom').innerText='';
+  document.getElementById('sendMailBtn').style.display="none";
+
+  roomId=null;dataChannel=null;
+}
 
 function registerPeerConnectionListeners() {
   peerConnection.addEventListener('icegatheringstatechange', () => {
@@ -659,15 +761,27 @@ function registerPeerConnectionListeners() {
   peerConnection.addEventListener('connectionstatechange', () => {
     console.log(`Connection state change: ${peerConnection.connectionState}`);
     if(peerConnection.connectionState=='failed')
-    {
-      document.getElementById('errormessage').textContent="The connection failed. The call was probably ended from the other end.";
-      $('#myErrorModal').modal('show');
-      hangUp();
+    {      
+      if(!onlyChat)
+      {
+        document.getElementById('errormessage').textContent="The connection failed. The call was probably ended from the other end.";
+        $('#myErrorModal').modal('show');
+        hangUp();
+      }      
     }
     if(peerConnection.connectionState=='disconnected')
     {
-      document.getElementById('errormessage').textContent="The connection was lost from the other end. You may wait for connection to reestablish or end the call.";
-      $('#myErrorModal').modal('show');
+      if(onlyChat)
+      {
+        $('#convertToVideoModal').modal('show');
+        hangUp();
+        convertToVideo=1;
+        leaveChat();                
+      }
+      else{
+        document.getElementById('errormessage').textContent="The connection was lost from the other end. You may wait for connection to reestablish or end the call.";
+        $('#myErrorModal').modal('show');
+      }      
     }
       
   });

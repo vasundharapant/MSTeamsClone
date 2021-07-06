@@ -77,13 +77,38 @@
         <div id="buttons">
             <button type="button" class="btn btn-primary" id="cameraBtn" container="body" data-toggle="tooltip" data-placement="top" title="Don't worry! We won't send your video or audio anywhere until you say so!">
                 Give Access to media
+            </button>   
+            <!-- Create Room dropdown button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" id="createBtn" onclick="create()">Create VideoChat Room</button>
+              <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><button class="dropdown-item" type="button" onclick="showCreate(this)">Create VideoChat Room</button></li>
+                <li><button class="dropdown-item" type="button" onclick="showCreate(this)">Create Chat Room</button></li>
+              </ul>
+            </div> 
+            <!-- Join Room dropdown button -->
+            <div class="btn-group">
+              <button type="button" class="btn btn-primary" id="joinBtn" onclick="join()">Join VideoChat</button>
+              <button type="button" class="btn btn-primary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" aria-expanded="false">
+                <span class="visually-hidden">Toggle Dropdown</span>
+              </button>
+              <ul class="dropdown-menu">
+                <li><button class="dropdown-item" type="button" onclick="showJoin(this)">Join VideoChat</button></li>
+                <li><button class="dropdown-item" type="button" onclick="showJoin(this)">Join Chat Room</button></li>
+              </ul>
+            </div>           
+            <button type="button" class="btn btn-primary" onclick="convertToVideoCall()">
+              Convert To Video
             </button>    
-            <button type="button" class="btn btn-primary" disabled id="createBtn">
-                Create room
+            <button type="button" class="btn btn-primary" onclick="joinVideoCall()">
+              Join Video
             </button>
-            <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#joinModal" disabled id="joinBtn">
-                Join room
-            </button>         
+            <button type="button" class="btn btn-danger" id="leaveChatBtn" onclick="leaveChatUser()">
+              Leave Chat
+            </button>
         </div>  
 
         <div class="pt-2 pb-2">
@@ -211,7 +236,7 @@
   <div class="modal-dialog">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">Sorry!</h5>
+        <h5 class="modal-title">Error Message!</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">   
@@ -223,7 +248,23 @@
     </div>
   </div>
 </div>
-
+<!--Convert to video Modal-->
+<div id="convertToVideoModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Caller Disconnected!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">   
+          <p id>The caller might have converted this into a video call. If so, you may click 'Join Video Call' button and enter the new meet ID from the caller. This will save your current chat progress.</p>       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>          
+      </div>
+    </div>
+  </div>
+</div>
 
 
 <!--Contact Info-->
@@ -245,5 +286,6 @@
 </div>
 
 <script src="app2.js"></script>
+<script src="buttonHandler.js"></script>
 </body>
 </html>
