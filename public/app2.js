@@ -161,11 +161,12 @@ async function createRoom() {
   registerPeerConnectionListeners();
 
   if(!onlyChat)   //only add video streams in video call, not in chat room
-  {
+  {   
     localStream.getTracks().forEach(track => {
       senders.push(peerConnection.addTrack(track, localStream));
     });
     addVideoLabel("localVideoDiv","You",'localVideoLabel');
+    convertToVideo=1;
   }  
 
   // Code for collecting ICE candidates below
@@ -195,6 +196,10 @@ async function createRoom() {
     },
   };
   await roomRef.set(roomWithOffer);
+  if(onlyChat)
+    await roomRef.update({'chatRoom':1,'videoRoom':0});
+  else
+    await roomRef.update({'chatRoom':0,'videoRoom':1});
   roomId = roomRef.id;
   console.log(`New room created with SDP offer. Room ID: ${roomRef.id}`);
   document.querySelector(
@@ -266,8 +271,7 @@ async function createChatRoom(){
   createRoom();
 }
 function joinChatRoom(){
-  onlyChat=1;
-  document.getElementById('joinVideoBtn').style.display="block";
+  onlyChat=1;  
   joinRoom();
 }
 
@@ -287,9 +291,14 @@ async function joinRoomById(roomId) {
   const roomSnapshot = await roomRef.get();
   console.log('Got room:', roomSnapshot.exists);
 
-  if (roomSnapshot.exists) { 
+  //temp is a variable to ensure that chatRooms and joined by 'join chat room' btn and video rooms are joined by 'join video' btn respectively
+  let temp=(roomSnapshot.exists &&((onlyChat && roomSnapshot.data().chatRoom==1)||(!onlyChat && roomSnapshot.data().videoRoom==1)));
+  if (roomSnapshot.exists && temp) { 
+    if(onlyChat)
+      document.getElementById('joinVideoBtn').style.display="block";
     if(onlyChat==0)
     {
+      convertToVideo=1;
       document.getElementById('joinVideoBtn').style.display="none";
       document.getElementById('leaveChatBtn').style.display="none";
     }      
@@ -390,6 +399,7 @@ async function joinRoomById(roomId) {
       document.getElementById('leaveChatBtn').disabled=false;    
   } 
   else{       //if room does not exist
+    onlyChat=0;
     document.querySelector(
       '#currentRoom').innerText = `Sorry! The room could not be found. You can try creating a room with CreateRoom Button first.`;
     document.querySelector(
@@ -399,7 +409,7 @@ async function joinRoomById(roomId) {
 
 //function to convert from chat to video call 
 async function joinVideoCall(){
-  if(!localStream)
+  if(document.getElementById('cameraBtn').disabled==false)
   {
     document.getElementById('errormessage').innerHTML='You need to give access to your media first to convert to video call';
     $('#myErrorModal').modal('show');
@@ -678,8 +688,6 @@ function addVideoLabel(videoDivID,label,id){
 //function to retrieve username of remote user from firebase and use it as label
 function setRemoteLabel(){
   const db=firebase.firestore();
-  //console.log(firebase.auth().currentUser.uid);
-  console.log(remote_UID);
   const docRef=db.collection('users').doc(remote_UID);     
   docRef.get().then((doc) => {
     if (doc.exists) {
@@ -788,6 +796,7 @@ function leaveChat(){
   document.getElementById('sendMailBtn').style.display="none";
   
   roomId=null;dataChannel=null;
+  onlyChat=0;
 }
 
 function registerPeerConnectionListeners() {
