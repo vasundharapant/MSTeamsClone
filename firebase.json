@@ -1,7 +1,4 @@
 {
-  "database": {
-    "rules": "database.rules.json"
-  },
   "hosting": {
     "public": "public",
     "ignore": [
@@ -12,8 +9,11 @@
     "rewrites": [
       {
         "source": "**",
-        "destination": "/index.html"
+        "function": "app"
       }
     ]
+  },
+  "functions": {    
+    "source": "functions"
   }
 }

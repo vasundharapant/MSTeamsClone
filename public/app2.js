@@ -783,13 +783,14 @@ function leaveChat(){
   }
   if(!convertToVideo)
   {
-    document.getElementById('sendMsgBtn').disabled=true;  
-    document.getElementById('myChat').innerHTML='';  
+    document.getElementById('sendMsgBtn').disabled=true;     
     document.getElementById('leaveChatBtn').style.display="none";     
     document.getElementById('createBtn').disabled=false;
     document.getElementById('joinBtn').disabled=false;
     document.getElementById('convertToVideoBtn').style.display="none";
     document.getElementById('joinVideoBtn').style.display="none";
+    saveScript();
+    $('#downloadChatModal').modal('show');
   }  
   
   document.getElementById('currentRoom').innerText='';

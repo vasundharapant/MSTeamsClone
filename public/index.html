@@ -111,8 +111,7 @@
           <button type="button" class="btn btn-danger" id="leaveChatBtn" onclick="leaveChatUser()"  style="display: none;">
             Leave Chat
           </button> 
-        </div> 
-
+        </div>         
         <div class="pt-2 pb-2">
             <span id="currentRoom" ></span>
         </div>
@@ -157,7 +156,7 @@
             </div>
             <div class="card-body height3 scroll">
               <ul id="myChat" class="chat-list">
-              <!--   <li class="in">
+                <li class="in">
                   <div class="chat-img">
                     <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
                   </div>
@@ -178,7 +177,7 @@
                       <p>Hello</p>
                     </div>
                   </div>
-                </li>  -->           
+                </li>       
               </ul>
             </div>
             <div class="card-text mb-2" >
@@ -268,6 +267,25 @@
   </div>
 </div>
 
+<!--Download Chat Modal-->
+<div id="downloadChatModal" class="modal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Download chat?</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">   
+          <p>Your call has ended. Click the button below to download the entire chat.</p>       
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-dark" data-bs-dismiss="modal">Close</button>  
+        <button type="button" class="btn btn-primary" data-bs-dismiss="modal" onclick="downloadChat()">Download</button>        
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <!--Contact Info-->
 <div id="contactinfo" class="container-fluid padding">
@@ -287,6 +305,7 @@
   </div>
 </div>
 
+<script src="chatScript.js"></script>
 <script src="app2.js"></script>
 <script src="buttonHandler.js"></script>
 </body>
