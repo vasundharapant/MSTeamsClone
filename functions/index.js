@@ -56,8 +56,8 @@ app.post('/sendmail',async (req,res)=>{
     return;
 });
 
-
-/* PORT=process.env.PORT || 5000;
+/* 
+PORT=process.env.PORT || 5000;
 app.listen(PORT,()=>{console.log(`server started at port: ${PORT}`)}); */
 
 exports.app = functions.https.onRequest(app);
