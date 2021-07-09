@@ -5,6 +5,7 @@ body{
     background-image: url('./images/videocall.jpg');
     background-repeat: no-repeat;
     background-position-x: center;
+    background-position-y: center;
     background-color: #cccccc;
     background-size: contain;
     background-blend-mode:multiply;

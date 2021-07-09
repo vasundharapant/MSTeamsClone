@@ -1,11 +1,12 @@
-//functions for changing drop down text
+//functions for changing drop down button text
 function showCreate(item){
     document.getElementById("createBtn").innerHTML = item.innerHTML;
 }
 function showJoin(item){
     document.getElementById("joinBtn").innerHTML = item.innerHTML;
 }
-  
+
+//function to create a room on pressing the create chat/video room btn
 function create(){
     let text=document.getElementById('createBtn').innerHTML;
     if(text=='Create VideoChat Room')
@@ -23,6 +24,8 @@ function create(){
         document.getElementById('leaveChatBtn').style.display="block";
     }
 }
+
+//function to join a room on pressing the join chat/video room btn
 function join(){
     let text=document.getElementById('joinBtn').innerHTML;
     if(text=='Join VideoChat')

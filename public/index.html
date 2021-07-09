@@ -149,14 +149,14 @@
   </div>
 
   <!--Chat box-->
-  <div id="chatBox" class="col col-xs-12 col-sm-6 col-md-4 col-lg-3 container content" style="display: none; position:fixed;right: 0;bottom: 0;">       
+  <div id="chatBox" class="col col-xs-12 col-sm-6 col-md-4 col-lg-3 container content" style="display: none; position:fixed;right: 0;bottom: 0;z-index: 2;">       
           <div class="card">
             <div class="card-header">Chat
               <button type="button" class="btn-close" onclick="toggleChatBox()" aria-label="Close" style="float:right;"></button>
             </div>
             <div class="card-body height3 scroll">
               <ul id="myChat" class="chat-list">
-                <li class="in">
+                <!-- <li class="in">
                   <div class="chat-img">
                     <img alt="Avtar" src="https://bootdey.com/img/Content/avatar/avatar1.png">
                   </div>
@@ -177,7 +177,7 @@
                       <p>Hello</p>
                     </div>
                   </div>
-                </li>       
+                </li>       --> 
               </ul>
             </div>
             <div class="card-text mb-2" >
@@ -305,8 +305,9 @@
   </div>
 </div>
 
-<script src="chatScript.js"></script>
+<script src="firebaseConfig.js"></script>
 <script src="app2.js"></script>
 <script src="buttonHandler.js"></script>
+<script src="chatScript.js"></script>
 </body>
 </html>

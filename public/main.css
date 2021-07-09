@@ -6,7 +6,7 @@ body {
     font-family: 'Merriweather', serif;
     background-image: url('./images/bg_index2.png');
     background-repeat: no-repeat;
-    background-position-x: center;   
+    background-position-x: center;    
     background-size: cover;
     background-blend-mode:multiply;
 }
@@ -57,7 +57,7 @@ div#videos {
     height: inline; 
     color: white; 
     z-index: 1; 
-    position: absolute; 
+    position:absolute;
     top:32px; left: 14%; 
     background: rgb(139, 48, 201); 
     padding:2px;
@@ -87,6 +87,7 @@ li.nav-item{
 }
 #contactinfo a{
     font-size: 75px;
+    margin: 2px;
 }
 .fa-github-square{
     color: wheat;

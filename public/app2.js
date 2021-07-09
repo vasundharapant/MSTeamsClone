@@ -1,18 +1,4 @@
-// Your web app's Firebase configuration
-  // For Firebase JS SDK v7.20.0 and later, measurementId is optional
-  var firebaseConfig = {
-    apiKey: "AIzaSyCm27xJOmzApVjEbQYSZISg1RbWaumAp7g",
-    authDomain: "fir-rtc-ff458.firebaseapp.com",
-    projectId: "fir-rtc-ff458",
-    storageBucket: "fir-rtc-ff458.appspot.com",
-    messagingSenderId: "368699893015",
-    appId: "1:368699893015:web:3f07c542726f4440748352",
-    measurementId: "G-QFX02TVEB7"
-  };
-  // Initialize Firebase
-  firebase.initializeApp(firebaseConfig);
-
-function logoutPage(){
+function logoutPage(){      //function to log out the user and redirect to login page
   console.log('in logout function');    
   firebase.auth().signOut();
   window.location.href="./login.html";
@@ -21,6 +7,8 @@ function logoutPage(){
 let imgURL=null;
 let curr_uid=null;    //stores UID of current user
 let uid;
+
+//function to log in the user to firebase on page load, and display user photo
 function getUser(){
   let userInfo=JSON.parse(sessionStorage.getItem('userInfo'));
   if(!userInfo)
@@ -62,7 +50,9 @@ function getUser(){
   .catch(e=>{console.log(e)});
   
 }
+
 //function which calls backend to send meet ID through mail
+//called on pressing 'Send Email Invite' button
   function sendmail(){
     const data={receiver: document.getElementById('receiverEmail').value,
             roomID: roomId};
@@ -78,31 +68,31 @@ function getUser(){
   }
 
 //on Click listener for opening chat Box
-
 document.getElementById('openChatBox').addEventListener('click',()=>{
   const notif=document.getElementById('chatNotif');
   if(notif){
     document.getElementById('chatElementNav').removeChild(notif);
   }
-  toggleChatBox();    
-  
+  toggleChatBox();  
 });
 
 //function to open and close chat box
 function toggleChatBox(){
   const videoDiv=document.getElementById('videoDiv');
   const videoElement=document.querySelectorAll('video');
+
+  //adjusting the size of video elements on opening/closing of chatbox
   if(document.getElementById('chatBox').style.display=="none")
   {
     document.getElementById('chatBox').style.display="block";    
-    videoDiv.classList.add('col-sm-6', 'col-md-8', 'col-lg-9');
+    videoDiv.classList.add('col-xs-12','col-sm-6', 'col-md-8', 'col-lg-9');
     videoElement[0].style.width="30vw";   
     videoElement[1].style.width="30vw"; 
   }
   else      //close the chat Box
   {
     document.getElementById('chatBox').style.display="none";
-    videoDiv.classList.remove('col-sm-6', 'col-md-8', 'col-lg-9');
+    videoDiv.classList.remove('col-xs-12','col-sm-6', 'col-md-8', 'col-lg-9');
     videoElement[0].style.width="35vw";   
     videoElement[1].style.width="35vw"; 
   }
@@ -139,7 +129,7 @@ let onlyChat=0;   //onlyChat=1 when chat room is created, 0 when video room is c
 let convertToVideo=0;   // =1 when call is being converted from chat to video, otherwise =0
 
 
-function init() {
+function init() {   //first function called on loading script. (initialization)
   document.querySelector('#cameraBtn').addEventListener('click', openUserMedia);
   document.querySelector('#hangupBtn').addEventListener('click', hangUp);
 }
@@ -151,7 +141,7 @@ async function createRoom() {
   const db = firebase.firestore();
   const roomRef = await db.collection('rooms').doc();  
   console.log('Create PeerConnection with configuration: ', configuration); 
-  peerConnection = new RTCPeerConnection(configuration);
+  peerConnection = new RTCPeerConnection(configuration);    //creating new peerConnection
 
   dataChannel = peerConnection.createDataChannel('myChannel');   //data channel for sending messages
   addEventListenerDC();   //add event listener for incoming messages in data channel
@@ -196,7 +186,7 @@ async function createRoom() {
     },
   };
   await roomRef.set(roomWithOffer);
-  if(onlyChat)
+  if(onlyChat)      //updating the room with parameters to know whether it is a video room or chat room
     await roomRef.update({'chatRoom':1,'videoRoom':0});
   else
     await roomRef.update({'chatRoom':0,'videoRoom':1});
@@ -274,7 +264,7 @@ function joinChatRoom(){
   onlyChat=1;  
   joinRoom();
 }
-
+//function to join existing room
 function joinRoom() {
   document.querySelector('#confirmJoinBtn').
       addEventListener('click', async () => {
@@ -309,7 +299,7 @@ async function joinRoomById(roomId) {
     document.querySelector(
       '#currentRoom').style.color="black";
     console.log('Create PeerConnection with configuration: ', configuration);
-    peerConnection = new RTCPeerConnection(configuration);
+    peerConnection = new RTCPeerConnection(configuration);    //creating peer connection
 
     peerConnection.addEventListener('datachannel', event => {
         console.log('data channel received');
@@ -433,28 +423,7 @@ async function convertToVideoCall(){
   } 
   else{
     convertToVideo=1;
-      // Delete caller/callee candidates from room on hangup  
-      if (roomId) {
-        const db = firebase.firestore();
-        const roomRef = db.collection('rooms').doc(roomId);
-        const roomSnapshot = await roomRef.get();
-        if(roomSnapshot.exists)
-        {
-          const calleeCandidates = await roomRef.collection('calleeCandidates').get();
-          calleeCandidates.forEach(async candidate => {
-            await candidate.ref.delete();
-          });
-          await roomRef.update({ answer: firebase.firestore.FieldValue.delete() });    
-
-          const callerCandidates = await roomRef.collection('callerCandidates').get();
-          callerCandidates.forEach(async candidate => {
-            await candidate.ref.delete();
-          });
-        }    
-        await roomRef.delete();
-    
-    
-      }
+    deleteRoom();
     leaveChat();
     onlyChat=0;
     document.getElementById('convertToVideoBtn').style.display="none";
@@ -744,6 +713,12 @@ async function hangUp(e) {
   if(dataChannel)
     document.getElementById('leaveChatBtn').style.display="block";
 
+  deleteRoom();
+  onlyChat=1;
+}
+
+//function to delete caller/callee candidates from room if room exists, and then delete the room reference
+async function deleteRoom(){
   // Delete caller/callee candidates from room on hangup  
   if (roomId) {
     const db = firebase.firestore();
@@ -763,10 +738,7 @@ async function hangUp(e) {
       });
     }    
     await roomRef.delete();
-    
-    
   }
-  onlyChat=1;
 }
 function leaveChatUser()
 {
