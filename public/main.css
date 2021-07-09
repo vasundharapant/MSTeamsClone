@@ -65,6 +65,8 @@ div#videos {
 video {
     background: black;
     object-fit: cover;
+    min-width: 400px;
+    min-height: 200px;
     width: 35vw;
     height: 40vh;
     display: block;

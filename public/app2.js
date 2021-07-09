@@ -558,7 +558,7 @@ function addEventListenerDC(){
     if(remoteImgURL)
       myImg.setAttribute('src',remoteImgURL);
     else      
-      myImg.src="https://bootdey.com/img/Content/avatar/avatar1.png";
+      myImg.src="https://bootdey.com/img/Content/avatar/avatar2.png";
     myImg.style.width="48px";myImg.style.height="48px";
     myImg.alt="Avtar";
     myImgDiv.appendChild(myImg);
